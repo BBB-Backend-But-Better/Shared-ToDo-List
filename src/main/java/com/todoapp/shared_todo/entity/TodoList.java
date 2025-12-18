@@ -2,13 +2,14 @@ package com.todoapp.shared_todo.entity;
 
 import com.todoapp.shared_todo.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+@Table(name = "todo_lists")
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 public class TodoList extends BaseEntity {
 
     @Id

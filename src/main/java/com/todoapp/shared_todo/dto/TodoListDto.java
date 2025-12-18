@@ -34,8 +34,6 @@ public class TodoListDto {
     }
 
     // Todo 응답
-    @Getter
-    @AllArgsConstructor
     public static class ResponseDto {
         private Long todoId;
         private String content;
