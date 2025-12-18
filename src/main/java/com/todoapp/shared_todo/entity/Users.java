@@ -25,5 +25,4 @@ public class Users extends BaseEntity {
     @Column(length = 100, nullable = false, unique = true)
     @NotBlank
     private String password; // 'bcrypt 암호화된 비밀번호'
-
 }
