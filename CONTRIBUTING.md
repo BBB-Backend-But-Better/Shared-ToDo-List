@@ -27,9 +27,7 @@
 ## 코드 스타일
 - Lombok 사용
 - 메서드명은 동사로 시작, 변수명은 camelCase
-- Dto는 dto 패키지 아래, 클래스 아래 static으로 묶어서 사용하기
-e.g. ) Users.SignUpDTO으로 사용하수 있겠금. UsersDTO참고
-
+- 패키지별로 만들자
 ## PR 탬플릿 초안
 아래 글 참고 하기
 e.g.
