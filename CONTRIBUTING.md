@@ -8,7 +8,7 @@
 
 ## 작업 흐름
 1. 이슈 생성 → 본인 할당
-2. `develop`에서 최신 pull 받고 `feat/이슈번호-간단설명` 브랜치 생성
+2. `develop`에서 최신 pull 받고 `feat/각 도메인별` 브랜치 생성
 3. 작업 후 커밋 메시지 규칙 준수
 4. PR → develop으로 보낼 때 최소 1명 리뷰 필수
 (Required number of approvals: 1 (최소 1명 리뷰 필수))
@@ -27,6 +27,8 @@
 ## 코드 스타일
 - Lombok 사용
 - 메서드명은 동사로 시작, 변수명은 camelCase
+- Dto는 dto 패키지 아래, 클래스 아래 static으로 묶어서 사용하기
+e.g. ) Users.SignUpDTO으로 사용하수 있겠금. UsersDTO참고
 
 ## PR 탬플릿 초안
 
