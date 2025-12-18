@@ -1,6 +1,5 @@
 package com.todoapp.shared_todo;
 
-import com.todoapp.shared_todo.entity.Users;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
