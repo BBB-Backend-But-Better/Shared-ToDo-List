@@ -28,6 +28,18 @@
 - Lombok 사용
 - 메서드명은 동사로 시작, 변수명은 camelCase
 - 패키지별로 만들자
+클래스별 dto에 요청클래스는  
+@Getter
+@NoArgsConstructor      // JSON 역직렬화 필수
+@AllArgsConstructor     // 테스트 편의 + 빠른 생성
+@Builder                // 부분 필드 테스트 + 가독성
+
+응답 클래스는 
+@Getter
+@Builder                // 서비스에서만 안전하게 생성
+@NoArgsConstructor      // 직렬화 대비 (있어도 무방)
+이렇게 다 넣어주세요
+
 ## PR 탬플릿 초안
 아래 글 참고 하기
 e.g.
