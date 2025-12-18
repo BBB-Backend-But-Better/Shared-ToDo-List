@@ -31,16 +31,25 @@
 e.g. ) Users.SignUpDTO으로 사용하수 있겠금. UsersDTO참고
 
 ## PR 탬플릿 초안
+아래 글 참고 하기
+e.g.
 
-📌 관련 이슈
+- [ ] 작업 내용
 
-- close #이슈번호
+  - Board 관련 DTO 구현
+    - Board 생성 요청 DTO
+    - Board 응답 DTO
+  - TodoList 관련 DTO 구현
+    - Todo 생성 요청 DTO
+    - Todo 내용 수정 요청 DTO
+    - Todo 상태 변경 요청 DTO
+    - Todo 응답 DTO
 
-✨ 구현 내용
-<!-- 어떤 기능을 추가/수정했는지 간단히 설명 -->
+  주요 사항
 
-✅ 체크리스트
-- [ ] 코드 컨벤션 준수
-- [ ] 빌드 에러 없음
-- [ ] conflict 해결 완료
-- [ ] 리뷰어 지정 완료
+  - DTO 내부 static class 구조로 역할 분리
+  - TodoStatus enum 사용 (CHECKED / UNCHECKED)
+
+  참고
+
+  - 추후 Service / Controller 계층에서 해당 DTO 사용 예정
