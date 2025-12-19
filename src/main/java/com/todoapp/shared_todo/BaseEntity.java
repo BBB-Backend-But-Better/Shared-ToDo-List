@@ -25,4 +25,9 @@ public abstract class BaseEntity {
 
     @Column(name = "created_by", nullable = false)
     private Long createdBy; //생성한 사용자 ID(자기 참조 가능)
+
+    // createdBy 설정용 public 메서드
+    public void setCreatedBy(Long userId) {
+        this.createdBy = userId;
+    }
 }
