@@ -1,6 +1,6 @@
 package com.todoapp.shared_todo.domain.board.entity;
 
-import com.todoapp.shared_todo.domain.task.entity.TodoList;
+import com.todoapp.shared_todo.domain.task.entity.Task;
 import com.todoapp.shared_todo.domain.user.entity.Users;
 import com.todoapp.shared_todo.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -18,11 +18,10 @@ import java.util.Set;
 public class Board extends BaseTimeEntity {
 
     // 정적 팩토리 메서드
-    public static Board create(String title, Users owner, Long createdBy) {
+    public static Board create(String title, Users owner) {
         Board board = new Board();
         board.setTitle(title);
         board.setOwner(owner);
-        board.setCreatedBy(createdBy);
         return board;
     }
 
@@ -39,9 +38,9 @@ public class Board extends BaseTimeEntity {
     @JoinColumn(name = "owner_id", nullable = false)
     private Users owner;
 
-    // 이 보드에 속한 투두 리스트들
+    // 이 보드에 속한 태스크 리스트들
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final List<TodoList> todoLists = new ArrayList<>();
+    private final List<Task> tasks = new ArrayList<>();
 
     // 공유된 사용자들 (boards_shared_users 조인 테이블)
     @ManyToMany

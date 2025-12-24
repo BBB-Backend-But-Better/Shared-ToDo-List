@@ -25,7 +25,7 @@ public class BoardService {
      */
     @Transactional
     public BoardResponseDto createBoard(Users owner, BoardCreateRequestDto requestDto) {
-        Board board = Board.create(requestDto.getTitle(), owner, owner.getId());
+        Board board = Board.create(requestDto.getTitle(), owner);
         Board savedBoard = boardRepository.save(board);
 
         return BoardResponseDto.builder()
