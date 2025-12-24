@@ -8,13 +8,13 @@ Shared Todo List는 개인과 공동 사용을 모두 지원하는 할 일 관�
 
 <br>
 
-## 🔭 프로젝트 구조
-<img width="800" alt="Image" src="https://github.com/user-attachments/assets/cde24588-8fa8-40b7-8d87-6ed74156d900" />
+## 프로젝트 Document
+`link` : [Notion](https://www.notion.so/Shared-ToDo-List-2d3304a558a88023b649e7712ee966be?source=copy_link)
 
 <br>
 
 ## 📊 ERD
-<img width="800" alt="Image" src="https://github.com/user-attachments/assets/6ee5abd5-a0ab-46c7-ad05-3871e9fbf4ac" />
+<img width="800" alt="Image" src="https://github.com/user-attachments/assets/9b846524-cbdf-49f0-85c2-425cbb731221" />
 
 <br>
 
