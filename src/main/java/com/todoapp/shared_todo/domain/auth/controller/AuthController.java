@@ -1,8 +1,8 @@
 package com.todoapp.shared_todo.domain.auth.controller;
 
 
-import com.todoapp.shared_todo.domain.auth.dto.LoginRequestDto;
-import com.todoapp.shared_todo.domain.auth.dto.SignupRequestDto;
+import com.todoapp.shared_todo.domain.auth.dto.LoginRequest;
+import com.todoapp.shared_todo.domain.auth.dto.SignupRequest;
 import com.todoapp.shared_todo.dto.users.UserResponseDto;
 import com.todoapp.shared_todo.domain.user.entity.Users;
 import com.todoapp.shared_todo.domain.auth.service.AuthService;
@@ -24,7 +24,7 @@ public class AuthController {
     //사용자 회원가입 API
     //post /auth/signup
     @PostMapping("/signup")
-    public ResponseEntity<UserResponseDto> signup(@Valid @RequestBody SignupRequestDto dto) {
+    public ResponseEntity<UserResponseDto> signup(@Valid @RequestBody SignupRequest dto) {
 
         Users userId = authService.signUp(dto);
 
@@ -47,7 +47,7 @@ public class AuthController {
      */
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String,Object>> login(@Valid @RequestBody LoginRequestDto dto) {
+    public ResponseEntity<Map<String,Object>> login(@Valid @RequestBody LoginRequest dto) {
 
     }
 
