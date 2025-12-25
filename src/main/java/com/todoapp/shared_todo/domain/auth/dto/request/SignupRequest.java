@@ -27,7 +27,7 @@ public class SignupRequest {
     private String nickname;
 
     @NotBlank(message = "비밀번호는 필수 입력 값입니다.")
-    @Size(min = 8, max = 20, message = "아이디는 8~20자 사이여야 합니다.")
+    @Size(min = 8, max = 20, message = "비밀번호는 8~20자 사이여야 합니다.")
     @Pattern(
             regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@!*])[A-Za-z\\d@!*]{8,20}$",
             message = "비밀번호는 8~20자의 영문, 숫자, 특수문자(@!*)를 포함해야 합니다."
