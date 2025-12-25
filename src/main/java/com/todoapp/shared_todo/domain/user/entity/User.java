@@ -4,6 +4,7 @@ import com.todoapp.shared_todo.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import org.springframework.util.Assert;
 
 @Getter
 @Entity
@@ -41,6 +42,10 @@ public class User extends BaseTimeEntity {
 
     @Builder
     private User(String loginId, String password, String nickname, String userCode, ProviderType provider, String providerId, UsersStatus status) {
+
+        Assert.hasText(loginId, "loginId는 필수입니다.");
+        Assert.hasText(nickname, "nickname은 필수입니다.");
+        Assert.hasText(userCode, "userCode는 필수입니다.");
 
         this.loginId = loginId;
         this.password = password;
