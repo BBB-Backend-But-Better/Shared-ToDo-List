@@ -4,10 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Getter
-@NoArgsConstructor
-public class CheckIdRequest {
 
-    @NotBlank
-    private String loginId;
+public record CheckLoginidRequest(
+        @NotBlank
+        String loginId) {
 }

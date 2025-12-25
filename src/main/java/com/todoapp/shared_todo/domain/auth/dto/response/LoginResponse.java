@@ -1,13 +1,9 @@
 package com.todoapp.shared_todo.domain.auth.dto.response;
 
 
-import lombok.Builder;
-import lombok.Getter;
+public record LoginResponse(
 
-@Getter
-@Builder
-public class LoginResponse {
-
-    private String accessToken;
-    private String nickname;
+        String accessToken,
+        String nickname
+) {
 }

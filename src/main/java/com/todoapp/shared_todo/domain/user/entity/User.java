@@ -7,11 +7,8 @@ import lombok.*;
 
 @Getter
 @Entity
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder
-
 @Table(name = "users")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseTimeEntity {
 
     @Id //PK
@@ -33,16 +30,29 @@ public class User extends BaseTimeEntity {
 
     @Column(length = 50, nullable = false)
     @Enumerated(EnumType.STRING)
-    @Builder.Default
-    private ProviderStatus provider = ProviderStatus.LOCAL;
+    private ProviderType provider;
 
     @Column(length = 255) //SNS 로그인 식별자
     private String providerId;
 
     @Column(length = 20, nullable = false)
     @Enumerated(EnumType.STRING)
-    @Builder.Default
-    private UsersStatus status = UsersStatus.CREATED;
+    private UsersStatus status;
+
+    @Builder
+    private User(String loginId, String password, String nickname, String userCode, ProviderType provider, String providerId, UsersStatus status) {
+
+        this.loginId = loginId;
+        this.password = password;
+        this.nickname = nickname;
+        this.userCode = userCode;
+        this.providerId = providerId;
+
+        this.provider = (provider != null) ? provider : ProviderType.LOCAL;
+        this.status = (status != null)? status : UsersStatus.CREATED;
+
+
+    }
 }
 
 /**

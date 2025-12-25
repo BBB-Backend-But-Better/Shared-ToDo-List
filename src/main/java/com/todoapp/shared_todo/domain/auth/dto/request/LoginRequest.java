@@ -2,21 +2,12 @@ package com.todoapp.shared_todo.domain.auth.dto.request;
 
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
-import lombok.*;
 
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-@ToString
-public class LoginRequest {
 
-    @NotBlank(message = "아이디를 입력해 주세요.")
-    private String loginId;
+public record LoginRequest(
+        @NotBlank(message = "아이디를 입력해 주세요.")
+        String loginId,
 
-    @NotBlank(message = "비밀번호를 입력해 주세요.")
-    private String password;
-
+        @NotBlank(message = "비밀번호를 입력해 주세요.")
+        String password) {
 }
