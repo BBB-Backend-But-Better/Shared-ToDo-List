@@ -5,6 +5,8 @@ import com.todoapp.shared_todo.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @Entity
@@ -12,35 +14,35 @@ import lombok.*;
 public class Task extends BaseTimeEntity {
 
     // 정적 팩토리 메서드
-    public static Task create(String content, Board board) {
+    public static Task create(String description, Board board) {
         Task task = new Task();
-        task.setContent(content);
+        task.setDescription(description);
         task.setBoard(board);
+        task.setCompleted(false);
         return task;
     }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "todo_id")
-    private Long taskId;
+    private Long id;
 
-    @Column(length = 100, nullable = false)
-    private String content;
+    @Column(columnDefinition = "TEXT", nullable = false)
+    private String description;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private TaskStatus status = TaskStatus.UNCHECKED;
+    private Boolean completed = false;
+
+    @Column(name = "due_date")
+    private LocalDateTime dueDate;
 
     // 소속 보드
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id", nullable = false)
     private Board board;
 
-    // 상태 토글 메서드
-    public void toggleStatus() {
-        this.status = (this.status == TaskStatus.UNCHECKED)
-                ? TaskStatus.CHECKED
-                : TaskStatus.UNCHECKED;
+    // 완료 상태 토글 메서드
+    public void toggleCompleted() {
+        this.completed = !this.completed;
     }
 }
 
