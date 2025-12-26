@@ -38,8 +38,8 @@ spring:
   # JWT Secret (실제 운영 시에는 환경 변수나 Vault 사용 권장)
   jwt:
     secret: your-very-secure-jwt-secret-key-with-at-least-256-bits-length
-    access-token-expiration: 3600000    # 1시간 (ms)
-    refresh-token-expiration: 86400000  # 24시간 (ms)
+    access-token-expiration: 900000   # 15분(ms) // e.g. 15분 (1000ms * 60s * 15m)
+    refresh-token-expiration: 86400000  # 24시간 (ms) // e.g. 7일 (1000ms * 60s * 60m * 24h * 7d)
 
 server:
   port: 8080
