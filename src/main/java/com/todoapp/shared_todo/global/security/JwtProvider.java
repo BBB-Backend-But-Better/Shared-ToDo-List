@@ -34,14 +34,15 @@ public class JwtProvider {
      *  토큰 생성
      * 페이로드: loginid, nickname, provider
      */
-    public String createAccessToken(String loginId, String nickname, String provider) {
+    public String createAccessToken(String loginId, String nickname, String provider, String userCode)  {
         return Jwts.builder()
-                //표준 Claim
+                //표준 Claim, 토큰의 주인 식별자
                 .setSubject(loginId)
 
                 // custom claim
                 .claim("nickname", nickname)
                 .claim("provider", provider)
+                .claim("userCode", userCode)
 
                 //시간 claim
                 .setIssuedAt(new Date())
@@ -53,7 +54,7 @@ public class JwtProvider {
 
     public String createRefreshToken(String loginId) {
         return Jwts.builder()
-                //표준 Claim
+                //표준 Claim, 토큰의 주인 식별자
                 .setSubject(loginId)
 
                 //시간 claim
