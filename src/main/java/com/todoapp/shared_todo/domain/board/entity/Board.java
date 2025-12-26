@@ -1,5 +1,6 @@
 package com.todoapp.shared_todo.domain.board.entity;
 
+import com.todoapp.shared_todo.domain.boardMember.entity.BoardMember;
 import com.todoapp.shared_todo.domain.task.entity.Task;
 import com.todoapp.shared_todo.domain.user.entity.User;
 import com.todoapp.shared_todo.global.common.BaseTimeEntity;
@@ -42,4 +43,8 @@ public class Board extends BaseTimeEntity {
     // 이 보드에 속한 Task 리스트들
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<Task> tasks = new ArrayList<>();
+
+    // 이 보드의 멤버들
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    private final List<BoardMember> members = new ArrayList<>();
 }
