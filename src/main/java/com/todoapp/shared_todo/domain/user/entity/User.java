@@ -26,7 +26,7 @@ public class User extends BaseTimeEntity {
     private String nickname;
 
     //랜덤값을 서비스단에서 생성해서 넣어주기
-    @Column(length = 30, nullable = false, unique = true)
+    @Column(name = "user_code", length = 30, nullable = false, unique = true)
     private String userCode;
 
     @Column(length = 50, nullable = false)
