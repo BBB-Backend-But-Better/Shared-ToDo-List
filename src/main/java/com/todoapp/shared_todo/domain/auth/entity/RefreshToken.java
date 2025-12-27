@@ -36,7 +36,7 @@ public class RefreshToken  {
 
         this.userLoginId = userLoginId;
         this.token = token;
-        this.revoked = (revoked != null) ? revoked : true;
+        this.revoked = (revoked != null) ? revoked : false; //리커브가 null이면 flase
     }
 
     // 토큰 만료 처리 (로그아웃 등)
