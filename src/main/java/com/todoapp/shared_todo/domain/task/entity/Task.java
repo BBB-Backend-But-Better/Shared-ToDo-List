@@ -14,11 +14,12 @@ import java.time.LocalDateTime;
 public class Task extends BaseTimeEntity {
 
     // 정적 팩토리 메서드
-    public static Task create(String description, Board board) {
+    public static Task create(String description, Board board, LocalDateTime dueDate) {
         Task task = new Task();
         task.setDescription(description);
         task.setBoard(board);
         task.setCompleted(false);
+        task.setDueDate(dueDate);
         return task;
     }
 
