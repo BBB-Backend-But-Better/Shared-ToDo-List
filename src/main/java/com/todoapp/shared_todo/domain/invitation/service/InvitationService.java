@@ -2,6 +2,9 @@ package com.todoapp.shared_todo.domain.invitation.service;
 
 import com.todoapp.shared_todo.domain.board.entity.Board;
 import com.todoapp.shared_todo.domain.board.repository.BoardRepository;
+import com.todoapp.shared_todo.domain.boardMember.entity.BoardMember;
+import com.todoapp.shared_todo.domain.boardMember.entity.BoardMemberRole;
+import com.todoapp.shared_todo.domain.boardMember.repository.BoardMemberRepository;
 import com.todoapp.shared_todo.domain.invitation.dto.InvitationCreateRequest;
 import com.todoapp.shared_todo.domain.invitation.dto.InvitationResponse;
 import com.todoapp.shared_todo.domain.invitation.entity.Invitation;
@@ -25,6 +28,7 @@ public class InvitationService {
     private final InvitationRepository invitationRepository;
     private final BoardRepository boardRepository;
     private final UsersRepository usersRepository;
+    private final BoardMemberRepository boardMemberRepository;
 
     /**
      * 초대 발송
@@ -100,7 +104,15 @@ public class InvitationService {
         invitation.accept();
         Invitation savedInvitation = invitationRepository.save(invitation);
 
-        // TODO: BoardMember 생성 로직 추가 필요 (보드 멤버로 추가)
+        // 보드 멤버로 추가 (GUEST 역할)
+        Board board = invitation.getBoard();
+        User invitee = invitation.getInvitee();
+        
+        // 중복 참여 방지 (이미 멤버인 경우 건너뜀)
+        if (!boardMemberRepository.existsByBoardIdAndUserId(board.getId(), invitee.getId())) {
+            BoardMember boardMember = BoardMember.create(board, invitee, BoardMemberRole.GUEST);
+            boardMemberRepository.save(boardMember);
+        }
 
         return toResponse(savedInvitation);
     }
