@@ -1,6 +1,7 @@
 package com.todoapp.shared_todo.domain.auth.entity;
 
 
+import com.todoapp.shared_todo.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -12,7 +13,7 @@ import org.springframework.util.Assert;
 @Getter
 @Table(name = "refresh_tokens")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class RefreshToken  {
+public class RefreshToken extends BaseTimeEntity {
 
     @Id //PK
     @GeneratedValue(strategy = GenerationType.IDENTITY)
