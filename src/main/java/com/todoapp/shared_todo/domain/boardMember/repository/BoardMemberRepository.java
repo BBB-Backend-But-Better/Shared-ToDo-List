@@ -1,6 +1,7 @@
 package com.todoapp.shared_todo.domain.boardMember.repository;
 
 import com.todoapp.shared_todo.domain.boardMember.entity.BoardMember;
+import com.todoapp.shared_todo.domain.boardMember.entity.BoardMemberRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -15,6 +16,12 @@ public interface BoardMemberRepository extends JpaRepository<BoardMember, Long> 
      * - 보드 멤버 목록 API에서 사용
      */
     List<BoardMember> findByBoardId(Long boardId);
+
+    /**
+     * 특정 보드에 특정 역할을 가진 멤버 조회
+     * - 역할 필터링용
+     */
+    List<BoardMember> findByBoardIdAndRole(Long boardId, BoardMemberRole role);
 
     /**
      * 특정 보드에 특정 유저가 멤버로 존재하는지 조회
