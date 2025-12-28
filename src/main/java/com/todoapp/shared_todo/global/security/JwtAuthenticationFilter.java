@@ -37,14 +37,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (StringUtils.hasText(token) && jwtProvider.vaildateToken(token)) {
 
             Claims claims = jwtProvider.getClaims(token);
-            String loginId = claims.getSubject(); //로그인 정보 꺼내고
+            Long userId = Long.valueOf(claims.getSubject()); //로그인 정보 꺼내고
             String userCode = claims.get("userCode", String.class); //유저 코드 꺼내서 사용!
+            String loginId = claims.get("loginId", String.class); //유저 코드 꺼내서 사용!
 
             //하지만 더미 권환 주는것이 백엔드 로직상 안전함.
             //지금은 모두 USER로 추가함.
             List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
 
-            CustomUserDetails principal = new CustomUserDetails(loginId, userCode, authorities);
+            CustomUserDetails principal = new CustomUserDetails(userId ,loginId, userCode, authorities);
             Authentication authentication = new UsernamePasswordAuthenticationToken(principal, null, authorities);
 
             SecurityContextHolder.getContext().setAuthentication(authentication);

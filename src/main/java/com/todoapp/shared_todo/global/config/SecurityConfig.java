@@ -44,7 +44,12 @@ public class SecurityConfig {
 
                 //URL별 권환 관리(회원가입, 로그인 외에 접속 불가)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers(
+                                "/auth/**",
+                                "/v3/api-docs/**", //스웨거
+                                "/swagger-ui/**", //스웨거
+                                "/swagger-ui.html") //스웨거
+                        .permitAll()
                         .anyRequest().authenticated()
                 )
                 

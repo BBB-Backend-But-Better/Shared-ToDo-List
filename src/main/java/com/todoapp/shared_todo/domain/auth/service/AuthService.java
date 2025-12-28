@@ -118,11 +118,12 @@ public class AuthService {
     // ========== [핵심] 공통 로직 추출 ==========
     private TokenDto issueTokenTdo(User user) {
         String newAccessToken = jwtProvider.createAccessToken(
+                user.getId(),
                 user.getLoginId(),
                 user.getNickname(),
                 user.getProvider(),
                 user.getUserCode());
-        String newRefreshToken = jwtProvider.createRefreshToken(user.getLoginId());
+        String newRefreshToken = jwtProvider.createRefreshToken(user.getId());
 
         // 7. 새 리프레시 토큰 저장
         RefreshToken newRefreshTokenEntity = RefreshToken.builder()

@@ -23,18 +23,18 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     //정보조회
-    public UserResponse getMyProfile(long userId) {
-        User user = findUserById(userId);
+    public UserResponse getMyProfile(String loginId) {
+        User user = findUserById(loginId);
         return UserResponse.from(user);
     }
 
     //닉네임 변경
     @Transactional
-    public UserResponse changeNickname (long userId, ChangeNicknameRequest newNickname) {
-        User user = findUserById(userId);
+    public UserResponse changeNickname (String loginId, ChangeNicknameRequest newNickname) {
+        User user = findUserById(loginId);
 
-        if(!user.getNickname().equals(newNickname.nickname())){
-            throw new RuntimeException("닉네임이 일치하지 않습니다.");
+        if(user.getNickname().equals(newNickname.nickname())){
+            throw new RuntimeException("닉네임이 일치합니다.");
         }
 
         user.updateNickname(newNickname.nickname());
@@ -44,8 +44,8 @@ public class UserService {
 
     //비밀번호 변경
     @Transactional
-    public UserResponse changePassword(long userId, ChangePasswordRequest newPassword) {
-        User user = findUserById(userId);
+    public UserResponse changePassword(String loginId, ChangePasswordRequest newPassword) {
+        User user = findUserById(loginId);
 
         //현재 비밀번호 일치 여부 확인
         if(!passwordEncoder.matches(newPassword.currentPassword(), user.getPassword())){
@@ -64,8 +64,8 @@ public class UserService {
     }
 
     // 2-step 비밀번호 확인
-    public void checkPassword(Long userId, PasswordCheckRequest request) {
-        User user = findUserById(userId);
+    public void checkPassword(String loginId, PasswordCheckRequest request) {
+        User user = findUserById(loginId);
 
         if (!passwordEncoder.matches(request.password(), user.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
@@ -74,15 +74,15 @@ public class UserService {
 
     //회원 탈퇴
     @Transactional
-    public void withdraw(Long userId) {
-        User user = findUserById(userId);
+    public void withdraw(String loginId) {
+        User user = findUserById(loginId);
         user.withdraw(); // Status를 DELETED로 변경
     }
 
-    private User findUserById(Long userId) {
-        return usersRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다."));
 
+    private User findUserById(String loginId) {
+        return usersRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다."));
     }
 
 
