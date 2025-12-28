@@ -19,12 +19,12 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long> {
         select i
         from Invitation i
         join fetch i.board b
-        join fetch i.sender s
-        where i.receiver.id = :receiverId
+        join fetch i.inviter inv
+        where i.invitee.id = :inviteeId
           and i.status = :status
         order by i.createdAt desc
     """)
-    List<Invitation> findReceivedInvitations(@Param("receiverId") Long receiverId, @Param("status") InvitationStatus status);
+    List<Invitation> findReceivedInvitations(@Param("inviteeId") Long inviteeId, @Param("status") InvitationStatus status);
 
     /**
      * 특정 보드의 초대 목록 조회 (OWNER 기준)
@@ -32,7 +32,7 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long> {
     @Query("""
         select i
         from Invitation i
-        join fetch i.receiver r
+        join fetch i.invitee inv
         where i.board.id = :boardId
         order by i.createdAt desc
     """)
@@ -41,11 +41,11 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long> {
     /**
      * 초대 단건 조회 (수락 / 거절 시 권한 검증용)
      */
-    Optional<Invitation> findByIdAndReceiverId(Long invitationId, Long receiverId);
+    Optional<Invitation> findByIdAndInviteeId(Long invitationId, Long inviteeId);
 
     /**
      * 중복 초대 방지
      * - 동일 보드에 PENDING 상태 초대가 이미 존재하는지 확인
      */
-    boolean existsByBoardIdAndReceiverIdAndStatus(Long boardId, Long receiverId, InvitationStatus status);
+    boolean existsByBoardIdAndInviteeIdAndStatus(Long boardId, Long inviteeId, InvitationStatus status);
 }
