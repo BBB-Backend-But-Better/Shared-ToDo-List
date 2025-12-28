@@ -58,6 +58,24 @@ public class User extends BaseTimeEntity {
 
 
     }
+
+    //비지니스 메서드
+
+    public void updateNickname(String newNickname) {
+        Assert.hasText(newNickname, "닉네임은 필수입니다.");
+        this.nickname = newNickname;
+    }
+
+    public void updatePassword(String encryptedPassword) {
+        Assert.hasText(encryptedPassword, "비밀번호는 필수입니다.");
+        this.password = encryptedPassword;
+    }
+
+    // 회원 탈퇴 (Soft Delete)
+    public void withdraw() {
+        this.status = UsersStatus.DELETED;
+    }
+
 }
 
 /**
