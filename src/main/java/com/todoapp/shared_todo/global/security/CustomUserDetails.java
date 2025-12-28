@@ -10,11 +10,13 @@ import java.util.Collection;
 public class CustomUserDetails implements UserDetails {
 
     private final String loginId; //로그인 id(Principal)
+    private final Long userId;
     private final String usercode; //유저 초대 코드
 
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public CustomUserDetails(String loginId, String usercode, Collection<? extends GrantedAuthority> authorities) {
+    public CustomUserDetails(Long userId, String loginId, String usercode, Collection<? extends GrantedAuthority> authorities) {
+        this.userId = userId;
         this.loginId = loginId;
         this.usercode = usercode;
         this.authorities = authorities;

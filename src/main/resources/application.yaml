@@ -5,7 +5,7 @@ spring:
   # JPA & Hibernate 설정
   jpa:
     hibernate:
-      ddl-auto: validate          # 개발 중엔 update, 운영은 validate 추천
+      ddl-auto: create-drop          # 개발 중엔 update, 운영은 validate 추천
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     properties:
@@ -24,8 +24,8 @@ spring:
 
   # DataSource 설정 (MySQL 9.5.0)
   datasource:
-    url: jdbc:mysql://localhost:3306/todo_board_db?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
-    username: ${DB_USERNAME:root}
+    url: ${DB_URL}
+    username: ${DB_USER}
     password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
@@ -36,10 +36,10 @@ spring:
       connection-timeout: 30000
 
   # JWT Secret (실제 운영 시에는 환경 변수나 Vault 사용 권장)
-  jwt:
-    secret: your-very-secure-jwt-secret-key-with-at-least-256-bits-length
-    access-token-expiration: 900000   # 15분(ms) // e.g. 15분 (1000ms * 60s * 15m)
-    refresh-token-expiration: 86400000  # 24시간 (ms) // e.g. 7일 (1000ms * 60s * 60m * 24h * 7d)
+jwt:
+  secret: v3ryS3cr3tK3yF0rJw7T0k3nG3n3r4t10nEb4s64Enc0d3dStr1ngV4lu3!!
+  access-token-expiration: 900000   # 15분(ms) // e.g. 15분 (1000ms * 60s * 15m)
+  refresh-token-expiration: 86400000  # 24시간 (ms) // e.g. 7일 (1000ms * 60s * 60m * 24h * 7d)
 
 server:
   port: 8080

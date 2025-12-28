@@ -4,14 +4,20 @@ import com.todoapp.shared_todo.domain.board.dto.BoardCreateRequest;
 import com.todoapp.shared_todo.domain.board.dto.BoardResponse;
 import com.todoapp.shared_todo.domain.board.dto.BoardUpdateTitleRequest;
 import com.todoapp.shared_todo.domain.board.service.BoardService;
+import com.todoapp.shared_todo.global.security.CustomUserDetails;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Board API", description = "보드(공유의 대상) 관련 API")
 @RestController
 @RequestMapping("/boards")
 @RequiredArgsConstructor
@@ -24,11 +30,12 @@ public class BoardController {
      * 보드 생성
      * POST /boards
      */
+    @Operation(summary = "게시글 작성", description = "로그인한 유저가 새로운 게시글을 생성합니다.")
     @PostMapping
     public ResponseEntity<BoardResponse> createBoard(
-            @RequestParam Long userId, // TODO: JWT 인증 후 SecurityContext에서 가져오도록 변경
+            @AuthenticationPrincipal CustomUserDetails userId, // TODO: JWT 인증 후 SecurityContext에서 가져오도록 변경
             @Valid @RequestBody BoardCreateRequest request) {
-        BoardResponse response = boardService.createBoard(userId, request);
+        BoardResponse response = boardService.createBoard(userId.getUserId(), request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -36,10 +43,11 @@ public class BoardController {
      * 보드 목록 조회
      * GET /boards
      */
+    @Operation(summary = "게시글 목록(전체) 조회", description = "로그인한 유저가 게시글을 전체 조회합니다.")
     @GetMapping
     public ResponseEntity<List<BoardResponse>> getBoards(
-            @RequestParam Long userId) { // TODO: JWT 인증 후 SecurityContext에서 가져오도록 변경
-        List<BoardResponse> responses = boardService.getBoards(userId);
+            @AuthenticationPrincipal CustomUserDetails userId) { // TODO: JWT 인증 후 SecurityContext에서 가져오도록 변경
+        List<BoardResponse> responses = boardService.getBoards(userId.getUserId());
         return ResponseEntity.ok(responses);
     }
 
@@ -47,11 +55,12 @@ public class BoardController {
      * 보드 단건 조회
      * GET /boards/{boardId}
      */
+    @Operation(summary = "보드 단건 조회", description = "특정 보드의 상세 정보를 조회합니다.")
     @GetMapping("/{boardId}")
     public ResponseEntity<BoardResponse> getBoard(
-            @PathVariable Long boardId,
-            @RequestParam Long userId) { // TODO: JWT 인증 후 SecurityContext에서 가져오도록 변경
-        BoardResponse response = boardService.getBoard(boardId, userId);
+            @Parameter(description = "조회할 보드의 ID", example = "1") @PathVariable Long boardId,
+            @AuthenticationPrincipal CustomUserDetails userId) { // TODO: JWT 인증 후 SecurityContext에서 가져오도록 변경
+        BoardResponse response = boardService.getBoard(boardId, userId.getUserId());
         return ResponseEntity.ok(response);
     }
 
@@ -59,12 +68,13 @@ public class BoardController {
      * 보드 제목 수정
      * PUT /boards/{boardId}/title
      */
+    @Operation(summary = "보드 제목 수정", description = "특정 보드의 제목을 수정합니다.")
     @PutMapping("/{boardId}/title")
     public ResponseEntity<BoardResponse> updateBoardTitle(
-            @PathVariable Long boardId,
-            @RequestParam Long userId, // TODO: JWT 인증 후 SecurityContext에서 가져오도록 변경
+            @Parameter(description = "수정할 보드의 ID", example = "1") @PathVariable Long boardId,
+            @AuthenticationPrincipal CustomUserDetails userId, // TODO: JWT 인증 후 SecurityContext에서 가져오도록 변경
             @Valid @RequestBody BoardUpdateTitleRequest request) {
-        BoardResponse response = boardService.updateBoardTitle(boardId, userId, request.getTitle());
+        BoardResponse response = boardService.updateBoardTitle(boardId, userId.getUserId(), request.getTitle());
         return ResponseEntity.ok(response);
     }
 
@@ -72,11 +82,12 @@ public class BoardController {
      * 보드 삭제
      * DELETE /boards/{boardId}
      */
+    @Operation(summary = "보드 삭제", description = "특정 보드를 삭제합니다. (소유자만 가능)")
     @DeleteMapping("/{boardId}")
     public ResponseEntity<Void> deleteBoard(
-            @PathVariable Long boardId,
-            @RequestParam Long userId) { // TODO: JWT 인증 후 SecurityContext에서 가져오도록 변경
-        boardService.deleteBoard(boardId, userId);
+            @Parameter(description = "삭제할 보드의 ID", example = "1") @PathVariable Long boardId,
+            @AuthenticationPrincipal CustomUserDetails userId) { // TODO: JWT 인증 후 SecurityContext에서 가져오도록 변경
+        boardService.deleteBoard(boardId, userId.getUserId());
         return ResponseEntity.noContent().build();
     }
 }
