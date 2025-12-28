@@ -1,5 +1,6 @@
 package com.todoapp.shared_todo.global.security;
 
+import com.todoapp.shared_todo.domain.user.entity.ProviderType;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -34,7 +35,7 @@ public class JwtProvider {
      *  토큰 생성
      * 페이로드: loginid, nickname, provider
      */
-    public String createAccessToken(String loginId, String nickname, String provider, String userCode)  {
+    public String createAccessToken(String loginId, String nickname, ProviderType provider, String userCode)  {
         return Jwts.builder()
                 //표준 Claim, 토큰의 주인 식별자
                 .setSubject(loginId)
