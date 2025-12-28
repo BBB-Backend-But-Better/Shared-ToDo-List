@@ -11,6 +11,7 @@ import com.todoapp.shared_todo.domain.invitation.entity.Invitation;
 import com.todoapp.shared_todo.domain.invitation.entity.InvitationStatus;
 import com.todoapp.shared_todo.domain.invitation.repository.InvitationRepository;
 import com.todoapp.shared_todo.domain.user.entity.User;
+import com.todoapp.shared_todo.domain.user.entity.UsersStatus;
 import com.todoapp.shared_todo.domain.user.repository.UsersRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -45,8 +46,8 @@ public class InvitationService {
         Board board = boardRepository.findByIdAndAuthor(request.boardId(), inviter)
                 .orElseThrow(() -> new IllegalArgumentException("보드를 찾을 수 없거나 접근 권한이 없습니다."));
 
-        // 초대받을 사용자 조회 (userCode로 찾기)
-        User invitee = usersRepository.findByUserCode(request.userCode())
+        // 초대받을 사용자 조회 (userCode로 찾기, 활성 사용자만)
+        User invitee = usersRepository.findByUserCodeAndStatus(request.userCode(), UsersStatus.CREATED)
                 .orElseThrow(() -> new IllegalArgumentException("초대할 사용자를 찾을 수 없습니다."));
 
         // 자기 자신에게 초대 불가
