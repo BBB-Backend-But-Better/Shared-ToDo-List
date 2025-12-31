@@ -1,5 +1,6 @@
 package com.todoapp.shared_todo.domain.task.dto;
 
+import com.todoapp.shared_todo.domain.task.entity.TaskStatus;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -12,7 +13,8 @@ public class TaskResponse {
 
     private Long id;
     private String description;
-    private Boolean completed;
+    // 기존 코드: private Boolean completed;
+    private TaskStatus status;
     private LocalDateTime dueDate;
 }
 

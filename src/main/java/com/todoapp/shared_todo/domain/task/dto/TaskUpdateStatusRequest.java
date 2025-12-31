@@ -1,5 +1,6 @@
 package com.todoapp.shared_todo.domain.task.dto;
 
+import com.todoapp.shared_todo.domain.task.entity.TaskStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,6 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder                
 public class TaskUpdateStatusRequest {
 
-    private Boolean completed;
+    // 기존 코드: private Boolean completed;
+    private TaskStatus status;
 }
 
