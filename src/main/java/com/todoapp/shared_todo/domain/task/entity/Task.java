@@ -18,8 +18,9 @@ public class Task extends BaseTimeEntity {
         Task task = new Task();
         task.setDescription(description);
         task.setBoard(board);
-        task.setCompleted(false);
+        task.setStatus(TaskStatus.UNCHECKED);
         task.setDueDate(dueDate);
+        // 기존 코드: task.setCompleted(false);
         return task;
     }
 
@@ -30,8 +31,12 @@ public class Task extends BaseTimeEntity {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String description;
 
+    // 기존 코드: @Column(nullable = false)
+    // 기존 코드: private Boolean completed = false;
+
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Boolean completed = false;
+    private TaskStatus status = TaskStatus.UNCHECKED;
 
     @Column(name = "due_date")
     private LocalDateTime dueDate;
@@ -42,8 +47,16 @@ public class Task extends BaseTimeEntity {
     private Board board;
 
     // 완료 상태 토글 메서드
-    public void toggleCompleted() {
-        this.completed = !this.completed;
+    public void toggleStatus() {
+        if (this.status == TaskStatus.UNCHECKED) {
+            this.status = TaskStatus.CHECKED;
+        } else {
+            this.status = TaskStatus.UNCHECKED;
+        }
     }
+
+    // 기존 코드: public void toggleCompleted() {
+    // 기존 코드:     this.completed = !this.completed;
+    // 기존 코드: }
 }
 

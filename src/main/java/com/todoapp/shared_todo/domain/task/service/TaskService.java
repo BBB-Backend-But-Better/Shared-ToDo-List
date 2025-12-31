@@ -7,6 +7,7 @@ import com.todoapp.shared_todo.domain.task.dto.TaskResponse;
 import com.todoapp.shared_todo.domain.task.dto.TaskUpdateRequest;
 import com.todoapp.shared_todo.domain.task.dto.TaskUpdateStatusRequest;
 import com.todoapp.shared_todo.domain.task.entity.Task;
+import com.todoapp.shared_todo.domain.task.entity.TaskStatus;
 import com.todoapp.shared_todo.domain.task.repository.TaskRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +45,8 @@ public class TaskService {
         return TaskResponse.builder()
                 .id(savedTask.getId())
                 .description(savedTask.getDescription())
-                .completed(savedTask.getCompleted())
+                .status(savedTask.getStatus())
+                // 기존 코드: .completed(savedTask.getCompleted())
                 .dueDate(savedTask.getDueDate())
                 .build();
     }
@@ -68,7 +70,8 @@ public class TaskService {
                 .map(task -> TaskResponse.builder()
                         .id(task.getId())
                         .description(task.getDescription())
-                        .completed(task.getCompleted())
+                        .status(task.getStatus())
+                        // 기존 코드: .completed(task.getCompleted())
                         .dueDate(task.getDueDate())
                         .build())
                 .collect(Collectors.toList());
@@ -84,7 +87,8 @@ public class TaskService {
         return TaskResponse.builder()
                 .id(task.getId())
                 .description(task.getDescription())
-                .completed(task.getCompleted())
+                .status(task.getStatus())
+                // 기존 코드: .completed(task.getCompleted())
                 .dueDate(task.getDueDate())
                 .build();
     }
@@ -104,7 +108,8 @@ public class TaskService {
         return TaskResponse.builder()
                 .id(updatedTask.getId())
                 .description(updatedTask.getDescription())
-                .completed(updatedTask.getCompleted())
+                .status(updatedTask.getStatus())
+                // 기존 코드: .completed(updatedTask.getCompleted())
                 .dueDate(updatedTask.getDueDate())
                 .build();
     }
@@ -117,13 +122,15 @@ public class TaskService {
     public TaskResponse toggleTaskStatus(Long boardId, Long taskId, Long userId) {
         Task task = validateTaskAndBoardAccess(boardId, taskId, userId);
 
-        task.toggleCompleted();
+        task.toggleStatus();
+        // 기존 코드: task.toggleCompleted();
         Task updatedTask = taskRepository.save(task);
 
         return TaskResponse.builder()
                 .id(updatedTask.getId())
                 .description(updatedTask.getDescription())
-                .completed(updatedTask.getCompleted())
+                .status(updatedTask.getStatus())
+                // 기존 코드: .completed(updatedTask.getCompleted())
                 .dueDate(updatedTask.getDueDate())
                 .build();
     }
@@ -136,13 +143,15 @@ public class TaskService {
     public TaskResponse updateTaskStatus(Long boardId, Long taskId, Long userId, @Valid TaskUpdateStatusRequest request) {
         Task task = validateTaskAndBoardAccess(boardId, taskId, userId);
 
-        task.setCompleted(request.getCompleted());
+        task.setStatus(request.getStatus());
+        // 기존 코드: task.setCompleted(request.getCompleted());
         Task updatedTask = taskRepository.save(task);
 
         return TaskResponse.builder()
                 .id(updatedTask.getId())
                 .description(updatedTask.getDescription())
-                .completed(updatedTask.getCompleted())
+                .status(updatedTask.getStatus())
+                // 기존 코드: .completed(updatedTask.getCompleted())
                 .dueDate(updatedTask.getDueDate())
                 .build();
     }
