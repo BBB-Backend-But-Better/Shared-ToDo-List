@@ -1,3 +1,4 @@
+/*
 
 package com.todoapp.shared_todo.global.security;
 
@@ -15,27 +16,27 @@ import java.util.Date;
 
 @Slf4j
 @Component
-public class JwtProvider {
+public class OldJwtProvider {
 
-    private final SecretKey accSecretKey;
-    private final SecretKey refSecretKey;
+    private final SecretKey secretKey;
     private final long accessTokenExpirationTime;
     private final long refreshTokenExpirationTime;
 
-    // 액서스 와 리프레쉬 시크릿 키값 다르게
     public JwtProvider(
-            @Value("${jwt.accSecret}") String accSecretKey,
-            @Value("${jwt.refSecret}") String refSecretKey,
+            @Value("${jwt.secret}") String secret,
             @Value("${jwt.access-token-expiration}") long accessTokenExpirationTime,
             @Value("${jwt.refresh-token-expiration}") long refreshTokenExpirationTime
     ) {
-        byte[] accKeyBytes = Decoders.BASE64.decode(accSecretKey);
-        byte[] refKeyBytes = Decoders.BASE64.decode(refSecretKey);
-        this.accSecretKey = Keys.hmacShaKeyFor(accKeyBytes);
-        this.refSecretKey = Keys.hmacShaKeyFor(refKeyBytes);
+        byte[] keyBytes = Decoders.BASE64.decode(secret);
+        this.secretKey = Keys.hmacShaKeyFor(keyBytes);
         this.accessTokenExpirationTime = accessTokenExpirationTime;
         this.refreshTokenExpirationTime = refreshTokenExpirationTime;
     }
+
+     */
+/**  토큰 생성
+     * 페이로드: loginid, nickname, provider
+     *//*
 
 
     public String createAccessToken(Long userId,String loginId, String nickname, ProviderType provider, String userCode)  {
@@ -53,24 +54,20 @@ public class JwtProvider {
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + accessTokenExpirationTime))
 
-                .signWith(accSecretKey, SignatureAlgorithm.HS256)
+                .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public String createRefreshToken(Long userId, String loginId, String userCode) {
+    public String createRefreshToken(Long userId) {
         return Jwts.builder()
                 //표준 Claim, 토큰의 주인 식별자
                 .setSubject(String.valueOf(userId))
-
-                // custom claim
-                .claim("loginId", loginId)
-                .claim("userCode", userCode)
 
                 //시간 claim
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + refreshTokenExpirationTime))
 
-                .signWith(refSecretKey, SignatureAlgorithm.HS256)
+                .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
 
     }
@@ -79,7 +76,7 @@ public class JwtProvider {
         try {
             Jwts.
                     parserBuilder().
-                    setSigningKey(refSecretKey).
+                    setSigningKey(secretKey).
                     build().
                     parseClaimsJws(token);
             return true; //문제 없으면 통과
@@ -100,7 +97,7 @@ public class JwtProvider {
 
     public Claims getClaims(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(refSecretKey)
+                .setSigningKey(secretKey)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
@@ -108,3 +105,4 @@ public class JwtProvider {
 
 }
 
+*/

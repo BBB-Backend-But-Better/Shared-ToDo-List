@@ -1,3 +1,4 @@
+/*
 package com.todoapp.shared_todo.domain.auth.service;
 
 import com.todoapp.shared_todo.domain.auth.dto.request.CheckLoginidRequest;
@@ -19,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class AuthService {
+public class OldAuthService {
 
     private final RefreshTokenRepository refreshTokenRepository;
     private final UsersRepository usersRepository;
@@ -69,7 +70,10 @@ public class AuthService {
     //로그아웃
     @Transactional
     public void logout(String requestRefreshToken) {
-        refreshTokenRepository.deleteById(requestRefreshToken);
+        refreshTokenRepository.findByToken(requestRefreshToken)
+                .ifPresent(token -> {
+                    token.revoke();
+                });
     }
 
 
@@ -84,29 +88,28 @@ public class AuthService {
         }
     }
 
-    //리플래시 토큰으로 검증하고, 토큰 재발급
-    //API요청은 엑서스 토큰으로 확인
+    //토큰 재발급
     @Transactional
     public TokenDto reissue(String requestRefreshToken) {
-        //들어온 리프레시 토큰 자체의 유효성 검사 (위조, 만료 등)
+        //토큰 유효성 검사(JWT provider)
         if (!jwtProvider.vaildateToken(requestRefreshToken)) {
             throw new RuntimeException("유효하지 않은 리플래시 토큰입니다.");
         }
 
-        String loginId = jwtProvider.getClaims(requestRefreshToken).get("loginId", String.class);
+        //db에서 토큰 조회(존재하는지)
+        RefreshToken oldToken = refreshTokenRepository.findByToken(requestRefreshToken)
+                .orElseThrow(() -> new RuntimeException("DB에 존재 하지 않는 리플래시 토큰입니다."));
 
-        //Redis에서 토큰 조회(존재하는지)
-        RefreshToken redisToken = refreshTokenRepository.findById(loginId)
-                .orElseThrow(() -> new RuntimeException("레디스에 존재 하지 않는 리플래시 토큰입니다."));
-
-        //Redis에 저장된 토큰 vs 요청온 토큰 일치 여부 확인
-        if (!redisToken.getToken().equals(requestRefreshToken)) {
+        //만료 여부 확인
+        if (oldToken.isRevoked()) {
             throw new RuntimeException("이미 폐기된(로그아웃된) 리플래시 토큰입니다.");
         }
 
         //토큰에서 유저조회(유저가 맞는지 확인)
-        User user = usersRepository.findByLoginId(loginId)
+        User user = usersRepository.findByLoginId(oldToken.getUserLoginId())
                 .orElseThrow(() -> new RuntimeException(" 유저를 찾을 수 없습니다."));
+
+        oldToken.revoke();
 
         //새로운 토큰 재발급
         return issueTokenTdo(user);
@@ -121,16 +124,13 @@ public class AuthService {
                 user.getNickname(),
                 user.getProvider(),
                 user.getUserCode());
-
-        String newRefreshToken = jwtProvider.createRefreshToken(
-                user.getId(),
-                user.getLoginId(),
-                user.getUserCode());
+        String newRefreshToken = jwtProvider.createRefreshToken(user.getId());
 
         // 7. 새 리프레시 토큰 저장
         RefreshToken newRefreshTokenEntity = RefreshToken.builder()
                 .userLoginId(user.getLoginId())
                 .token(newRefreshToken)
+                .revoked(false) // 새 토큰은 쌩쌩함
                 .build();
 
         refreshTokenRepository.save(newRefreshTokenEntity);
@@ -139,3 +139,4 @@ public class AuthService {
     }
 
 }
+*/

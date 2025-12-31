@@ -1,4 +1,9 @@
 spring:
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
   application:
     name: todo-board-api
 
@@ -36,8 +41,11 @@ spring:
       connection-timeout: 30000
 
   # JWT Secret (실제 운영 시에는 환경 변수나 Vault 사용 권장)
+  # 터미널에서 openssl을 사용하여 무작위 64바이트(Base64 인코딩) 키를 생성
+  # openssl rand -base64 64
 jwt:
-  secret: v3ryS3cr3tK3yF0rJw7T0k3nG3n3r4t10nEb4s64Enc0d3dStr1ngV4lu3!!
+  accSecret: v3ryS3cr3tK3yF0rJw7T0k3nG3n3r4t10nEb4s64Enc0d3dStr1ngV4lu3!!
+  refSecret: d437x+epVH4ygMLHDfgCNxiW972j4L4iGQFg7dDcZ+MV2OvY6UOxoSqOAfdGMRQm
   access-token-expiration: 900000   # 15분(ms) // e.g. 15분 (1000ms * 60s * 15m)
   refresh-token-expiration: 86400000  # 24시간 (ms) // e.g. 7일 (1000ms * 60s * 60m * 24h * 7d)
 
