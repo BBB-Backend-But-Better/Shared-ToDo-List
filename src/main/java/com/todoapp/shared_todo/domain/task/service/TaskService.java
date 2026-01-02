@@ -7,7 +7,6 @@ import com.todoapp.shared_todo.domain.task.dto.TaskResponse;
 import com.todoapp.shared_todo.domain.task.dto.TaskUpdateRequest;
 import com.todoapp.shared_todo.domain.task.dto.TaskUpdateStatusRequest;
 import com.todoapp.shared_todo.domain.task.entity.Task;
-import com.todoapp.shared_todo.domain.task.entity.TaskStatus;
 import com.todoapp.shared_todo.domain.task.repository.TaskRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -42,12 +41,7 @@ public class TaskService {
         Task task = Task.create(request.getDescription(), board, request.getDueDate());
         Task savedTask = taskRepository.save(task);
 
-        return TaskResponse.builder()
-                .id(savedTask.getId())
-                .description(savedTask.getDescription())
-                .status(savedTask.getStatus())
-                .dueDate(savedTask.getDueDate())
-                .build();
+        return TaskResponse.from(savedTask);
     }
 
     /**
@@ -66,12 +60,7 @@ public class TaskService {
         List<Task> tasks = taskRepository.findByBoardId(boardId);
 
         return tasks.stream()
-                .map(task -> TaskResponse.builder()
-                        .id(task.getId())
-                        .description(task.getDescription())
-                        .status(task.getStatus())
-                        .dueDate(task.getDueDate())
-                        .build())
+                .map(TaskResponse::from)
                 .collect(Collectors.toList());
     }
 
@@ -82,12 +71,7 @@ public class TaskService {
     public TaskResponse getTask(Long boardId, Long taskId, Long userId) {
         Task task = validateTaskAndBoardAccess(boardId, taskId, userId);
 
-        return TaskResponse.builder()
-                .id(task.getId())
-                .description(task.getDescription())
-                .status(task.getStatus())
-                .dueDate(task.getDueDate())
-                .build();
+        return TaskResponse.from(task);
     }
 
     /**
@@ -102,12 +86,7 @@ public class TaskService {
         task.setDueDate(request.getDueDate());
         Task updatedTask = taskRepository.save(task);
 
-        return TaskResponse.builder()
-                .id(updatedTask.getId())
-                .description(updatedTask.getDescription())
-                .status(updatedTask.getStatus())
-                .dueDate(updatedTask.getDueDate())
-                .build();
+        return TaskResponse.from(updatedTask);
     }
 
     /**
@@ -121,12 +100,7 @@ public class TaskService {
         task.toggleStatus();
         Task updatedTask = taskRepository.save(task);
 
-        return TaskResponse.builder()
-                .id(updatedTask.getId())
-                .description(updatedTask.getDescription())
-                .status(updatedTask.getStatus())
-                .dueDate(updatedTask.getDueDate())
-                .build();
+        return TaskResponse.from(updatedTask);
     }
 
     /**
@@ -140,12 +114,7 @@ public class TaskService {
         task.setStatus(request.getStatus());
         Task updatedTask = taskRepository.save(task);
 
-        return TaskResponse.builder()
-                .id(updatedTask.getId())
-                .description(updatedTask.getDescription())
-                .status(updatedTask.getStatus())
-                .dueDate(updatedTask.getDueDate())
-                .build();
+        return TaskResponse.from(updatedTask);
     }
 
     /**
@@ -178,6 +147,4 @@ public class TaskService {
 
         return task;
     }
-
 }
-
