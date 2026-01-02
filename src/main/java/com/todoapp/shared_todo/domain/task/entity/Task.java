@@ -20,7 +20,6 @@ public class Task extends BaseTimeEntity {
         task.setBoard(board);
         task.setStatus(TaskStatus.UNCHECKED);
         task.setDueDate(dueDate);
-        // 기존 코드: task.setCompleted(false);
         return task;
     }
 
@@ -31,8 +30,6 @@ public class Task extends BaseTimeEntity {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String description;
 
-    // 기존 코드: @Column(nullable = false)
-    // 기존 코드: private Boolean completed = false;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -55,8 +52,6 @@ public class Task extends BaseTimeEntity {
         }
     }
 
-    // 기존 코드: public void toggleCompleted() {
-    // 기존 코드:     this.completed = !this.completed;
-    // 기존 코드: }
+
 }
 

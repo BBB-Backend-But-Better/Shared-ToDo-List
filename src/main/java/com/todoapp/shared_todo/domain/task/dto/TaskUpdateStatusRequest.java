@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 @Builder                
 public class TaskUpdateStatusRequest {
 
-    // 기존 코드: private Boolean completed;
     private TaskStatus status;
 }
 
