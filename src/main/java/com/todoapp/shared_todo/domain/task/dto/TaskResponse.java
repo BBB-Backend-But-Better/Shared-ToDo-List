@@ -13,7 +13,6 @@ public class TaskResponse {
 
     private Long id;
     private String description;
-    // 기존 코드: private Boolean completed;
     private TaskStatus status;
     private LocalDateTime dueDate;
 }
