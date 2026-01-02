@@ -119,14 +119,12 @@ public class TaskService {
         Task task = validateTaskAndBoardAccess(boardId, taskId, userId);
 
         task.toggleStatus();
-        // 기존 코드: task.toggleCompleted();
         Task updatedTask = taskRepository.save(task);
 
         return TaskResponse.builder()
                 .id(updatedTask.getId())
                 .description(updatedTask.getDescription())
                 .status(updatedTask.getStatus())
-                // 기존 코드: .completed(updatedTask.getCompleted())
                 .dueDate(updatedTask.getDueDate())
                 .build();
     }
