@@ -43,6 +43,10 @@ public class Task extends BaseTimeEntity {
     @JoinColumn(name = "board_id", nullable = false)
     private Board board;
 
+    @Version
+    @Column(nullable = false)
+    private Long version;
+    
     // 완료 상태 토글 메서드
     public void toggleStatus() {
         if (this.status == TaskStatus.UNCHECKED) {
@@ -51,7 +55,4 @@ public class Task extends BaseTimeEntity {
             this.status = TaskStatus.UNCHECKED;
         }
     }
-
-
 }
-
