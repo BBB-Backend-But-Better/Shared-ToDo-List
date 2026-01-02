@@ -46,7 +46,6 @@ public class TaskService {
                 .id(savedTask.getId())
                 .description(savedTask.getDescription())
                 .status(savedTask.getStatus())
-                // 기존 코드: .completed(savedTask.getCompleted())
                 .dueDate(savedTask.getDueDate())
                 .build();
     }
@@ -71,7 +70,6 @@ public class TaskService {
                         .id(task.getId())
                         .description(task.getDescription())
                         .status(task.getStatus())
-                        // 기존 코드: .completed(task.getCompleted())
                         .dueDate(task.getDueDate())
                         .build())
                 .collect(Collectors.toList());
@@ -88,7 +86,6 @@ public class TaskService {
                 .id(task.getId())
                 .description(task.getDescription())
                 .status(task.getStatus())
-                // 기존 코드: .completed(task.getCompleted())
                 .dueDate(task.getDueDate())
                 .build();
     }
@@ -109,7 +106,6 @@ public class TaskService {
                 .id(updatedTask.getId())
                 .description(updatedTask.getDescription())
                 .status(updatedTask.getStatus())
-                // 기존 코드: .completed(updatedTask.getCompleted())
                 .dueDate(updatedTask.getDueDate())
                 .build();
     }
@@ -144,14 +140,12 @@ public class TaskService {
         Task task = validateTaskAndBoardAccess(boardId, taskId, userId);
 
         task.setStatus(request.getStatus());
-        // 기존 코드: task.setCompleted(request.getCompleted());
         Task updatedTask = taskRepository.save(task);
 
         return TaskResponse.builder()
                 .id(updatedTask.getId())
                 .description(updatedTask.getDescription())
                 .status(updatedTask.getStatus())
-                // 기존 코드: .completed(updatedTask.getCompleted())
                 .dueDate(updatedTask.getDueDate())
                 .build();
     }
