@@ -106,5 +106,18 @@ public class JwtProvider {
                 .getBody();
     }
 
+    //액서스 토큰 블랙리스트 만들기
+    public Long getExpiredToken(String token) {
+        Date expiration = Jwts.parserBuilder()
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getExpiration();
+
+
+        long now = new Date().getTime();
+        return (expiration.getTime() - now);
+    }
+
 }
 
