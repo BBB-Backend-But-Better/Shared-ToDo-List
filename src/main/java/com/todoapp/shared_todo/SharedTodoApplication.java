@@ -1,5 +1,6 @@
 package com.todoapp.shared_todo;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
@@ -14,7 +15,7 @@ public class SharedTodoApplication {
                 "=================================================\n" +
                 "🚀 Shared ToDo Application 시작 완료!\n" +
                 "=================================================\n" +
-                "📋 Swagger UI: http://localhost:8080/swagger-ui/index.html\n" +
+                "📋 Swagger UI: http://localhost:8080/api/swagger-ui/index.html\n" +
                 "⭐ JPA Auditing 적용: 자동 시간/사용자 추적\n" +
                 "=================================================\n");
     }
