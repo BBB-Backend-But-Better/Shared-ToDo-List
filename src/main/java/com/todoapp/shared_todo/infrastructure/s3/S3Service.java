@@ -223,4 +223,3 @@ public class S3Service implements S3ServicePort {
         return UUID.randomUUID().toString() + extension;
     }
 }
-
