@@ -9,18 +9,24 @@ import com.todoapp.shared_todo.domain.auth.entity.RefreshToken;
 import com.todoapp.shared_todo.domain.auth.repository.RefreshTokenRepository;
 import com.todoapp.shared_todo.domain.user.entity.User;
 import com.todoapp.shared_todo.domain.user.repository.UsersRepository;
+import com.todoapp.shared_todo.global.exception.ErrorCode;
+import com.todoapp.shared_todo.global.exception.GeneralException;
 import com.todoapp.shared_todo.global.security.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class AuthService {
 
+    private final RedisTemplate<String, Object> redisTemplate;
     private final RefreshTokenRepository refreshTokenRepository;
     private final UsersRepository usersRepository;
     private final PasswordEncoder passwordEncoder;
@@ -32,7 +38,7 @@ public class AuthService {
 
         //아이디 중복검사.
         if (usersRepository.existsByLoginId(request.loginId())) {
-            throw new RuntimeException("이미 존재하는 아이디입니다.");
+            throw new GeneralException(ErrorCode.DUPLICATE_LOGIN_ID);
         }
 
         // 유저 코드 난수 생성(10자리)
@@ -56,11 +62,11 @@ public class AuthService {
 
         //아이디검증
         User user = usersRepository.findByLoginId(request.loginId())
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 아이디 입니다."));
+                .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
 
         //pw 검증
         if (!passwordEncoder.matches(request.password(), user.getPassword())) {
-            throw new RuntimeException("비밀번호가 일치하지 않습니다.");
+            throw new GeneralException(ErrorCode.LOGIN_FAILED);
         }
         //토큰 생성
         return issueTokenTdo(user);
@@ -68,8 +74,21 @@ public class AuthService {
 
     //로그아웃
     @Transactional
-    public void logout(String requestRefreshToken) {
-        refreshTokenRepository.deleteById(requestRefreshToken);
+    public void logout(String accessToken, String refreshToken) {
+        //1. 액서스 토큰 남은 유효시간 계산, 블랙리스트 등록
+        Long expiredToken = jwtProvider.getExpiredToken(accessToken);
+        if(expiredToken > 0){
+            redisTemplate.opsForValue().set("blacklist:"+ accessToken, "logout:", expiredToken, TimeUnit.MICROSECONDS);
+        }
+        
+        //리플래시 토큰 처리 하는데, 거기서 id를 뽑아서 삭제
+        if(jwtProvider.vaildateToken(refreshToken)){
+
+            String userLoginId = jwtProvider.getClaims(refreshToken).get("loginId", String.class);
+            refreshTokenRepository.deleteById(userLoginId);
+        }else{
+            throw new GeneralException(ErrorCode.INVALID_REFRESH_TOKEN);
+        }
     }
 
 
@@ -90,27 +109,30 @@ public class AuthService {
     public TokenDto reissue(String requestRefreshToken) {
         //들어온 리프레시 토큰 자체의 유효성 검사 (위조, 만료 등)
         if (!jwtProvider.vaildateToken(requestRefreshToken)) {
-            throw new RuntimeException("유효하지 않은 리플래시 토큰입니다.");
+            throw new GeneralException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
 
         String loginId = jwtProvider.getClaims(requestRefreshToken).get("loginId", String.class);
 
         //Redis에서 토큰 조회(존재하는지)
         RefreshToken redisToken = refreshTokenRepository.findById(loginId)
-                .orElseThrow(() -> new RuntimeException("레디스에 존재 하지 않는 리플래시 토큰입니다."));
+                .orElseThrow(() -> new GeneralException(ErrorCode.NOT_FOUND_REDIS));
 
         //Redis에 저장된 토큰 vs 요청온 토큰 일치 여부 확인
         if (!redisToken.getToken().equals(requestRefreshToken)) {
-            throw new RuntimeException("이미 폐기된(로그아웃된) 리플래시 토큰입니다.");
+            throw new GeneralException(ErrorCode.EXPIRED_TOKEN);
         }
 
         //토큰에서 유저조회(유저가 맞는지 확인)
         User user = usersRepository.findByLoginId(loginId)
-                .orElseThrow(() -> new RuntimeException(" 유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
+
+        //기존 토큰은 삭제
+        refreshTokenRepository.delete(redisToken);
 
         //새로운 토큰 재발급
         return issueTokenTdo(user);
-    } //푸후에 오래된 토큰 삭제해야됨.
+    }
 
 
     // ========== [핵심] 공통 로직 추출 ==========

@@ -7,8 +7,10 @@ import com.todoapp.shared_todo.domain.auth.dto.TokenDto;
 import com.todoapp.shared_todo.domain.auth.dto.response.AccessTokenResponse;
 import com.todoapp.shared_todo.domain.auth.dto.response.AvailableResponse;
 import com.todoapp.shared_todo.domain.auth.service.AuthService;
+import com.todoapp.shared_todo.global.dto.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -27,62 +29,72 @@ public class AuthController {
     //회원가입
     @Operation(summary = "회원가입", description = "신규 유저 회원가입을 처리합니다.")
     @PostMapping("/signup")
-    public ResponseEntity<Void> signup (@RequestBody @Valid SignupRequest request) {
+    public ApiResponse<String> signup (@RequestBody @Valid SignupRequest request,HttpServletResponse httpServletResponse) {
         authService.signup(request);
 
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ApiResponse.onSuccess("회원가입 성공");
     }
 
     //로그인(httpolny 쿠키 발급)
     @Operation(summary = "로그인", description = "로그인 성공 시 Access Token을 Body로, Refresh Token을 HttpOnly Cookie로 발급합니다.")
     @PostMapping("/login")
-    public ResponseEntity<AccessTokenResponse> login (@RequestBody @Valid LoginRequest request) {
+    public ApiResponse<AccessTokenResponse> login (@RequestBody @Valid LoginRequest request, HttpServletResponse response) {
 
         //서비스로 부터 토큰 2개 받아오기
         TokenDto tokenDto = authService.login(request);
-
+        
+        //리플래시 토큰 쿠기 생성
         ResponseCookie refreshCookie = createRefreshCookie(tokenDto.refreshToken());
 
-        //액세서 토큰 바디에 답아서 보내기
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
-                .body(new AccessTokenResponse(tokenDto.accessToken()));
+        //해더에 쿠기 심기
+        response.setHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+
+        //공통 응답 객체로 감싸서 반환
+        return ApiResponse.onSuccess(new AccessTokenResponse(tokenDto.accessToken()));
+
     }
 
 
     //로그아웃
     @Operation(summary = "로그아웃", description = "Refresh Token 쿠키를 삭제하고 서버(Redis 등)에서 토큰을 무효화합니다.")
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(@CookieValue("refresh_token") String refreshToken) {
-        authService.logout(refreshToken);
+    public ApiResponse<String> logout(@RequestHeader("Authorization") String accessToken, @CookieValue("refresh_token") String refreshToken, HttpServletResponse response) {
 
+        //Bearer 제거
+        String resolveToken = resolveToken(accessToken);
+
+        //서비스 로그아웃
+        authService.logout(resolveToken,refreshToken);
+
+        //쿠키 삭제용
         ResponseCookie endCookie = ResponseCookie.from("refresh_token", "")
                 .path("/") //모든 경로 접근 가능
                 .sameSite("Strict") //csrf 공격 방지
                 .httpOnly(true) //자바 스크립트 접근 차단
                 .secure(false) //https에서만 전송, 로컬일때는 false
-                .maxAge(0)
+                .maxAge(0) //즉시 삭제
                 .build();
 
-        //액세서 토큰 바디에 답아서 보내기
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, endCookie.toString())
-                .body("로그아웃 성공");
+        //해더에 쿠기 심기
+        response.setHeader(HttpHeaders.SET_COOKIE, endCookie.toString());
+
+        return ApiResponse.onSuccess("로그아웃 성공");
     }
 
     //토큰 재발급
     @Operation(summary = "토큰 재발급", description = "Refresh Token 쿠키를 사용하여 새로운 Access Token과 Refresh Token을 발급받습니다.")
     @PostMapping("/reissue")
-    public ResponseEntity<AccessTokenResponse> reissue(@CookieValue("refresh_token") String refreshToken) {
+    public ApiResponse<AccessTokenResponse> reissue(@CookieValue("refresh_token") String refreshToken, HttpServletResponse response) {
 
         TokenDto tokenDto = authService.reissue(refreshToken);
 
         ResponseCookie refreshCookie = createRefreshCookie(tokenDto.refreshToken());
 
-        //액세서 토큰 바디에 답아서 보내기
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
-                .body(new AccessTokenResponse(tokenDto.accessToken()));
+        //해더에 쿠기 심기
+        response.setHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+
+        //공통 응답 객체로 감싸서 반환
+        return ApiResponse.onSuccess(new AccessTokenResponse(tokenDto.accessToken()));
 
     }
 
@@ -106,5 +118,13 @@ public class AuthController {
                 .maxAge(7 * 24 * 60 * 60)
                 .build();
         return refreshCookie;
+    }
+
+    // Bearer 파싱 메서드
+    private String resolveToken(String header) {
+        if (header != null && header.startsWith("Bearer ")) {
+            return header.substring(7);
+        }
+        return null; // 혹은 예외 발생
     }
 }

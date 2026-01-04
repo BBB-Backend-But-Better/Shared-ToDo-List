@@ -7,6 +7,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -27,15 +29,28 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     //검증을 위한 도구
     private final JwtProvider jwtProvider;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-
+        //토큰 추출
         String token = resolveToken(request);
+
+        //토큰 유효성 검사
         if (StringUtils.hasText(token) && jwtProvider.vaildateToken(token)) {
 
+            //1. Redis 블랙리스트 확인
+            String isLogout = (String) redisTemplate.opsForValue().get("blacklist:" + token);
+
+            //로그아웃이 not null이면 에러
+            if(isLogout != null){
+                log.warn("로그아웃된 토큰으로 접근 시도 감지");
+                throw new RuntimeException("로그아웃된 토큰입니다.");
+            }
+
+            //정상이면 토큰에서 Claims 추출
             Claims claims = jwtProvider.getClaims(token);
             Long userId = Long.valueOf(claims.getSubject()); //로그인 정보 꺼내고
             String userCode = claims.get("userCode", String.class); //유저 코드 꺼내서 사용!
