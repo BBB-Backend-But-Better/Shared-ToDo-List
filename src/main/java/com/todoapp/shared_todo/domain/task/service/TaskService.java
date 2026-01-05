@@ -8,7 +8,8 @@ import com.todoapp.shared_todo.domain.task.dto.TaskUpdateRequest;
 import com.todoapp.shared_todo.domain.task.dto.TaskUpdateStatusRequest;
 import com.todoapp.shared_todo.domain.task.entity.Task;
 import com.todoapp.shared_todo.domain.task.repository.TaskRepository;
-import jakarta.validation.Valid;
+
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -94,13 +95,17 @@ public class TaskService {
      * 요구사항: Task 상태 변경 - 토글 방식
      */
     @Transactional
-    public TaskResponse toggleTaskStatus(Long boardId, Long taskId, Long userId) {
+    public TaskResponse toggleTaskStatus(Long boardId, Long taskId, Long userId, Long requestVersion) {
         Task task = validateTaskAndBoardAccess(boardId, taskId, userId);
 
-        task.toggleStatus();
-        Task updatedTask = taskRepository.save(task);
+        if(!task.getVersion().equals(requestVersion)) {
+            throw new OptimisticLockException("Task 버전이 충돌하였습니다.");
+        }
 
-        return TaskResponse.from(updatedTask);
+        task.toggleStatus();
+
+        // flush 시 JPA가 version으로 최종 검증 → 영속 상태이므로 트랜잭션 종료 시 flush, save() 호출이 없어도 됨
+        return TaskResponse.from(task);
     }
 
     /**
