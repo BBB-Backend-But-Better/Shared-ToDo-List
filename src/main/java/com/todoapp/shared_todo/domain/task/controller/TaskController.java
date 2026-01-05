@@ -1,5 +1,6 @@
 package com.todoapp.shared_todo.domain.task.controller;
 
+import com.todoapp.shared_todo.domain.task.dto.TaskCheckRequest;
 import com.todoapp.shared_todo.domain.task.dto.TaskCreateRequest;
 import com.todoapp.shared_todo.domain.task.dto.TaskResponse;
 import com.todoapp.shared_todo.domain.task.dto.TaskUpdateRequest;
@@ -86,14 +87,15 @@ public class TaskController {
     /**
      * Task 상태 변경 (토글)
      */
-    @Operation(summary = "Task 완료 여부 토글", description = "할 일의 완료 상태(Done/Not Done)를 반전시킵니다.")
+    @Operation(summary = "Task 완료 여부 토글", description = "할 일의 완료 상태(UNCHECK, CHECK)를 반전시킵니다.")
     @PatchMapping("/{taskId}/toggle")
     public ResponseEntity<TaskResponse> toggleTaskStatus(
             @Parameter(description = "보드 ID", example = "1") @PathVariable Long boardId,
             @Parameter(description = "할 일 ID", example = "10") @PathVariable Long taskId,
-            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails) {
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody TaskCheckRequest request) {
 
-        TaskResponse response = taskService.toggleTaskStatus(boardId, taskId, userDetails.getUserId());
+        TaskResponse response = taskService.toggleTaskStatus(boardId, taskId, userDetails.getUserId(), request.version());
         return ResponseEntity.ok(response);
     }
 
