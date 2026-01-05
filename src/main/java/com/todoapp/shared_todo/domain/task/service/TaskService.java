@@ -5,7 +5,6 @@ import com.todoapp.shared_todo.domain.board.repository.BoardRepository;
 import com.todoapp.shared_todo.domain.task.dto.TaskCreateRequest;
 import com.todoapp.shared_todo.domain.task.dto.TaskResponse;
 import com.todoapp.shared_todo.domain.task.dto.TaskUpdateRequest;
-import com.todoapp.shared_todo.domain.task.dto.TaskUpdateStatusRequest;
 import com.todoapp.shared_todo.domain.task.entity.Task;
 import com.todoapp.shared_todo.domain.task.repository.TaskRepository;
 
@@ -106,20 +105,6 @@ public class TaskService {
 
         // flush 시 JPA가 version으로 최종 검증 → 영속 상태이므로 트랜잭션 종료 시 flush, save() 호출이 없어도 됨
         return TaskResponse.from(task);
-    }
-
-    /**
-     * Task 상태 변경 (특정 상태로 설정)
-     * 요구사항: Task 상태 변경 - 특정 상태로 설정
-     */
-    @Transactional
-    public TaskResponse updateTaskStatus(Long boardId, Long taskId, Long userId, @Valid TaskUpdateStatusRequest request) {
-        Task task = validateTaskAndBoardAccess(boardId, taskId, userId);
-
-        task.setStatus(request.getStatus());
-        Task updatedTask = taskRepository.save(task);
-
-        return TaskResponse.from(updatedTask);
     }
 
     /**
