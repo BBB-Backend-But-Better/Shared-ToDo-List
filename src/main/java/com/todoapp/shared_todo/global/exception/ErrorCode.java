@@ -14,13 +14,17 @@ public enum ErrorCode {
     ACCESS_DENIED(HttpStatus.FORBIDDEN, "COMMON_004","접근 권한이 없습니다."),
     ENTITY_NOT_FOUND(HttpStatus.NOT_FOUND, "COMMON_005","요청하신 리소스를 찾을 수 없습니다."),
 
+    /* ----OAtuth2 에러 ------*/
+    NOT_FOUND_OAUTH2(HttpStatus.NOT_FOUND,"OAUTH2_001","지원하지 않는 소셜 로그인입니다."),
+
+
     /* --- 인증/계정 (Auth & Account) [cite: 60] --- */
     DUPLICATE_LOGIN_ID(HttpStatus.CONFLICT, "AUTH_001","이미 사용 중인 아이디입니다."),
     DUPLICATE_NICKNAME(HttpStatus.CONFLICT, "AUTH_002","이미 사용 중인 닉네임입니다."),
     INVALID_PASSWORD_FORMAT(HttpStatus.BAD_REQUEST, "AUTH_003","비밀번호 형식이 올바르지 않습니다."),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "AUTH_004","존재하지 않는 회원입니다."),
-    LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "AUTH_005","아이디 또는 비밀번호를 확인해주세요."),
 
+    LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "AUTH_005","아이디 또는 비밀번호를 확인해주세요."),
     /* --- 토큰 (Token/JWT) [cite: 66] --- */
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "JWT_TOKEN_001","유효하지 않은 토큰입니다."),
     EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "JWT_TOKEN_002","만료된 토큰입니다."),
