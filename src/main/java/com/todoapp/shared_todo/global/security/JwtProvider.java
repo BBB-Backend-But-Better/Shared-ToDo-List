@@ -74,12 +74,21 @@ public class JwtProvider {
                 .compact();
 
     }
+    // 1. Access Token 검증용 (accSecretKey 사용)
+    public boolean validateAccessToken(String token) {
+        return validateToken(token, accSecretKey);
+    }
 
-    public boolean vaildateToken(String token) {
+    // 2. Refresh Token 검증용 (refSecretKey 사용)
+    public boolean validateRefreshToken(String token) {
+        return validateToken(token, refSecretKey);
+    }
+
+    public boolean validateToken(String token, SecretKey secretKey) {
         try {
             Jwts.
                     parserBuilder().
-                    setSigningKey(refSecretKey).
+                    setSigningKey(secretKey).
                     build().
                     parseClaimsJws(token);
             return true; //문제 없으면 통과
@@ -98,6 +107,8 @@ public class JwtProvider {
         return false; // 예외 발생 시 무조건 false 반환
     }
 
+    
+    //가져오는것도 두개로 만드러야됨
     public Claims getClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(refSecretKey)
