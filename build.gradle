@@ -35,6 +35,9 @@ dependencies {
     // Swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.11'
 
+    // OAuth2 Client
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'com.mysql:mysql-connector-j'
@@ -51,6 +54,13 @@ dependencies {
 
     //Lang3 랜덤 라이브러리 추가
     implementation 'org.apache.commons:commons-lang3:3.20.0'
+
+    // Redis 의존성 추가
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    //테스트
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
 }
 
 tasks.named('test') {

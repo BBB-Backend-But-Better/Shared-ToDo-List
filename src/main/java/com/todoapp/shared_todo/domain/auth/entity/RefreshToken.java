@@ -7,41 +7,32 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.redis.core.TimeToLive;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.util.Assert;
 
-@Entity
+//초 * 분 * 시 * 일
 @Getter
-@Table(name = "refresh_tokens")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class RefreshToken extends BaseTimeEntity {
+@RedisHash(value = "refresh_tokens", timeToLive = 60 * 60 * 24 * 7)
+public class RefreshToken{
 
-    @Id //PK
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    //단순 String 컬럼으로 저장
-    @Column(name = "user_login_id",nullable = false, length = 50)
-    private String userLoginId;
-
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String token;
-
-    @Column(nullable = false)
-    private boolean revoked = false; // 기본값 false
+    @Id
+    private String userLoginId; //key
+    private String token;       //value
 
     @Builder
-    public RefreshToken(String userLoginId, String token, Boolean revoked) {
+    public RefreshToken(String userLoginId, String token) {
 
         Assert.hasText(userLoginId, "user_login_Id는 필수입니다.");
         Assert.hasText(token, "token은 필수입니다.");
 
         this.userLoginId = userLoginId;
         this.token = token;
-        this.revoked = (revoked != null) ? revoked : false; //리커브가 null이면 flase
     }
 
-    // 토큰 만료 처리 (로그아웃 등)
-    public void revoke() {
-        this.revoked = true;
-    }
+    @TimeToLive
+    private Long expiration;
 }
+

@@ -17,4 +17,6 @@ public interface UsersRepository extends JpaRepository<User, Long> {
     //초대 기능용: 코드로 유저 찾기
     Optional<User> findByUserCodeAndStatus(String userCode, UsersStatus status);
 
+    Optional<User> findByEmail(String email);
+
 }
