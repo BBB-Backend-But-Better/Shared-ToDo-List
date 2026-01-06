@@ -9,10 +9,9 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-@JsonPropertyOrder({"isSuccess", "code", "message", "result"})
+@JsonPropertyOrder({"code", "message", "result"})
 public class ApiResponse<T> {
-    @JsonProperty("isSuccess")
-    private final boolean isSuccess;
+
     private final String code;
     private final String message;
 
@@ -21,16 +20,16 @@ public class ApiResponse<T> {
 
     //성공시 응답
     public static <T> ApiResponse<T> onSuccess(T result) {
-        return new ApiResponse<>(true,"200","요청에 성공하였습니다.",result);
+        return new ApiResponse<>("200","요청에 성공하였습니다.",result);
     }
 
     //실패시 응답
     public static <T> ApiResponse<T> onFailure(String code, String message, T data) {
-        return new ApiResponse<>(false, code, message, data);
+        return new ApiResponse<>(code, message, data);
     }
 
     // Enum을 이용한 실패 응답
     public static <T> ApiResponse<T> onFailure(ErrorCode status) {
-        return new ApiResponse<>(false, status.getCode(), status.getMessage(), null);
+        return new ApiResponse<>(status.getCode(), status.getMessage(), null);
     }
 }
