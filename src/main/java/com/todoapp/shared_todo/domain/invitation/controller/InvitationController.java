@@ -3,7 +3,7 @@ package com.todoapp.shared_todo.domain.invitation.controller;
 import com.todoapp.shared_todo.domain.invitation.dto.InvitationCreateRequest;
 import com.todoapp.shared_todo.domain.invitation.dto.InvitationResponse;
 import com.todoapp.shared_todo.domain.invitation.service.InvitationService;
-import com.todoapp.shared_todo.global.security.CustomUserDetails;
+import com.todoapp.shared_todo.global.security.CustomePrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,7 +33,7 @@ public class InvitationController {
     @Operation(summary = "초대 발송", description = "다른 사용자에게 내 보드에 참여하도록 초대를 보냅니다.")
     @PostMapping
     public ResponseEntity<InvitationResponse> sendInvitation(
-           @AuthenticationPrincipal CustomUserDetails userId, // TODO: JWT 인증 후 SecurityContext에서 가져오도록 변경
+            @AuthenticationPrincipal CustomePrincipal userId, // TODO: JWT 인증 후 SecurityContext에서 가져오도록 변경
             @Valid @RequestBody InvitationCreateRequest request) {
         InvitationResponse response = invitationService.sendInvitation(userId.getUserId(), request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -47,7 +47,7 @@ public class InvitationController {
     @Operation(summary = "받은 초대 목록 조회", description = "나에게 온 대기 중(PENDING)인 초대 목록을 확인합니다.")
     @GetMapping
     public ResponseEntity<List<InvitationResponse>> getReceivedInvitations(
-           @AuthenticationPrincipal CustomUserDetails userId) { // TODO: JWT 인증 후 SecurityContext에서 가져오도록 변경
+           @AuthenticationPrincipal CustomePrincipal userId) { // TODO: JWT 인증 후 SecurityContext에서 가져오도록 변경
         List<InvitationResponse> responses = invitationService.getReceivedInvitations(userId.getUserId());
         return ResponseEntity.ok(responses);
     }
@@ -61,7 +61,7 @@ public class InvitationController {
     @PostMapping("/{invitationId}/accept")
     public ResponseEntity<InvitationResponse> acceptInvitation(
             @Parameter(description = "초대 ID", example = "1")@PathVariable Long invitationId,
-           @AuthenticationPrincipal CustomUserDetails userId) { // TODO: JWT 인증 후 SecurityContext에서 가져오도록 변경
+           @AuthenticationPrincipal CustomePrincipal userId) { // TODO: JWT 인증 후 SecurityContext에서 가져오도록 변경
         InvitationResponse response = invitationService.acceptInvitation(invitationId, userId.getUserId());
         return ResponseEntity.ok(response);
     }
@@ -75,7 +75,7 @@ public class InvitationController {
     @PostMapping("/{invitationId}/reject")
     public ResponseEntity<InvitationResponse> rejectInvitation(
             @Parameter(description = "초대 ID", example = "1") @PathVariable Long invitationId,
-           @AuthenticationPrincipal CustomUserDetails userId) { // TODO: JWT 인증 후 SecurityContext에서 가져오도록 변경
+           @AuthenticationPrincipal CustomePrincipal userId) { // TODO: JWT 인증 후 SecurityContext에서 가져오도록 변경
         InvitationResponse response = invitationService.rejectInvitation(invitationId, userId.getUserId());
         return ResponseEntity.ok(response);
     }
