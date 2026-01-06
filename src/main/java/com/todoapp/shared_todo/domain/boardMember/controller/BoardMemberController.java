@@ -4,7 +4,7 @@ import com.todoapp.shared_todo.domain.boardMember.dto.BoardMemberResponse;
 import com.todoapp.shared_todo.domain.boardMember.entity.BoardMemberRole;
 import com.todoapp.shared_todo.domain.boardMember.service.BoardMemberService;
 import com.todoapp.shared_todo.global.dto.SimpleStatusResponse;
-import com.todoapp.shared_todo.global.security.CustomUserDetails;
+import com.todoapp.shared_todo.global.security.CustomePrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,7 +31,7 @@ public class BoardMemberController {
     @GetMapping("/{boardId}/members")
     public ResponseEntity<List<BoardMemberResponse>> getBoardMembers(
             @Parameter(description = "보드 ID", example = "1") @PathVariable Long boardId,
-            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomePrincipal userDetails,
             @Parameter(description = "역할 필터 (OWNER, GUEST)", example = "GUEST") @RequestParam(required = false) BoardMemberRole role) {
 
         List<BoardMemberResponse> responses = boardMemberService.getBoardMembers(boardId, userDetails.getUserId(), role);
@@ -45,7 +45,7 @@ public class BoardMemberController {
     @PutMapping("/{boardId}/members/{userId}")
     public ResponseEntity<SimpleStatusResponse> deleteBoardMember(
             @Parameter(description = "보드 ID", example = "1") @PathVariable Long boardId,
-            @AuthenticationPrincipal CustomUserDetails userId, // 삭제할 멤버의 userId
+            @AuthenticationPrincipal CustomePrincipal userId, // 삭제할 멤버의 userId
             @Parameter(description = "삭제할 타겟 멤버의 ID (User PK)", example = "5") @RequestParam Long ownerId) {
         boardMemberService.deleteBoardMember(boardId, ownerId, userId.getUserId());
         return ResponseEntity.ok(new SimpleStatusResponse(true));
@@ -58,7 +58,7 @@ public class BoardMemberController {
     @PutMapping("/{boardId}/members/me/leave")
     public ResponseEntity<SimpleStatusResponse> leaveBoard(
             @Parameter(description = "보드 ID", example = "1") @PathVariable Long boardId,
-            @AuthenticationPrincipal CustomUserDetails userId) { // TODO: JWT 인증 후 SecurityContext에서 가져오도록 변경
+            @AuthenticationPrincipal CustomePrincipal userId) { // TODO: JWT 인증 후 SecurityContext에서 가져오도록 변경
         boardMemberService.leaveBoard(boardId, userId.getUserId());
         return ResponseEntity.ok(new SimpleStatusResponse(true));
     }
