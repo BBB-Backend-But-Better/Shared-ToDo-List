@@ -1,5 +1,6 @@
 package com.todoapp.shared_todo.global.security;
 
+import com.todoapp.shared_todo.domain.user.entity.ProviderType;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -8,14 +9,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -39,7 +37,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = resolveToken(request);
 
         //토큰 유효성 검사
-        if (StringUtils.hasText(token) && jwtProvider.vaildateToken(token)) {
+        if (StringUtils.hasText(token) && jwtProvider.validateRefreshToken(token)) {
 
             //1. Redis 블랙리스트 확인
             String isLogout = (String) redisTemplate.opsForValue().get("blacklist:" + token);
@@ -55,13 +53,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             Long userId = Long.valueOf(claims.getSubject()); //로그인 정보 꺼내고
             String userCode = claims.get("userCode", String.class); //유저 코드 꺼내서 사용!
             String loginId = claims.get("loginId", String.class); //유저 코드 꺼내서 사용!
-
+            String providerStr = claims.get("provider", String.class);
+            ProviderType provider = ProviderType.valueOf(providerStr); // String -> Enum 변환
             //하지만 더미 권환 주는것이 백엔드 로직상 안전함.
             //지금은 모두 USER로 추가함.
-            List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+            String role = "USER";
 
-            CustomUserDetails principal = new CustomUserDetails(userId ,loginId, userCode, authorities);
-            Authentication authentication = new UsernamePasswordAuthenticationToken(principal, null, authorities);
+            /**중요 부분
+             * 2. 토큰에서 인증 정보(Authentication) 조회
+             *      * - 필터에서 토큰을 검증한 뒤, Spring Security Context에 저장할 객체를 만듭니다.
+             *      * - DB를 거치지 않고 토큰에서 바로 권한 정보를 꺼냅니다 (성능 최적화).
+             */
+
+            CustomePrincipal principal = new CustomePrincipal(userId ,loginId, userCode, role,provider);
+            Authentication authentication = new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 

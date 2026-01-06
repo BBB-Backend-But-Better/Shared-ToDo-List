@@ -64,6 +64,7 @@ public class AuthService {
         User user = usersRepository.findByLoginId(request.loginId())
                 .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
 
+
         //pw 검증
         if (!passwordEncoder.matches(request.password(), user.getPassword())) {
             throw new GeneralException(ErrorCode.LOGIN_FAILED);
@@ -82,7 +83,7 @@ public class AuthService {
         }
         
         //리플래시 토큰 처리 하는데, 거기서 id를 뽑아서 삭제
-        if(jwtProvider.vaildateToken(refreshToken)){
+        if(jwtProvider.validateRefreshToken(refreshToken)){
 
             String userLoginId = jwtProvider.getClaims(refreshToken).get("loginId", String.class);
             refreshTokenRepository.deleteById(userLoginId);
@@ -108,7 +109,7 @@ public class AuthService {
     @Transactional
     public TokenDto reissue(String requestRefreshToken) {
         //들어온 리프레시 토큰 자체의 유효성 검사 (위조, 만료 등)
-        if (!jwtProvider.vaildateToken(requestRefreshToken)) {
+        if (!jwtProvider.validateRefreshToken(requestRefreshToken)) {
             throw new GeneralException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
 
