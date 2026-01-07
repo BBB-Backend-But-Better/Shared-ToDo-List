@@ -37,7 +37,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = resolveToken(request);
 
         //토큰 유효성 검사
-        if (StringUtils.hasText(token) && jwtProvider.validateRefreshToken(token)) {
+        if (StringUtils.hasText(token) && jwtProvider.validateAccessToken(token)) {
 
             //1. Redis 블랙리스트 확인
             String isLogout = (String) redisTemplate.opsForValue().get("blacklist:" + token);

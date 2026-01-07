@@ -24,8 +24,8 @@ public class JwtProvider {
 
     // 액서스 와 리프레쉬 시크릿 키값 다르게
     public JwtProvider(
-            @Value("${jwt.accSecret}") String accSecretKey,
-            @Value("${jwt.refSecret}") String refSecretKey,
+            @Value("${jwt.accsecret}") String accSecretKey,
+            @Value("${jwt.refsecret}") String refSecretKey,
             @Value("${jwt.access-token-expiration}") long accessTokenExpirationTime,
             @Value("${jwt.refresh-token-expiration}") long refreshTokenExpirationTime
     ) {
@@ -111,7 +111,7 @@ public class JwtProvider {
     //가져오는것도 두개로 만드러야됨
     public Claims getClaims(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(refSecretKey)
+                .setSigningKey(accSecretKey)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
@@ -119,15 +119,19 @@ public class JwtProvider {
 
     //액서스 토큰 블랙리스트 만들기
     public Long getExpiredToken(String token) {
-        Date expiration = Jwts.parserBuilder()
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getExpiration();
-
-
-        long now = new Date().getTime();
-        return (expiration.getTime() - now);
+        try {
+            Date expiration = Jwts.parserBuilder()
+                    .setSigningKey(accSecretKey) // <--- ✅ 여기도 키 설정 추가 필요
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getExpiration();
+            long now = new Date().getTime();
+            return (expiration.getTime() - now);
+        } catch (ExpiredJwtException e) {
+            // 이미 만료된 토큰이면 남은 시간은 0 또는 음수
+            return -1L;
+        }
     }
 
 }

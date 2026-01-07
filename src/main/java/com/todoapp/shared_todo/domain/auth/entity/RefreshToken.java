@@ -3,10 +3,7 @@ package com.todoapp.shared_todo.domain.auth.entity;
 
 import com.todoapp.shared_todo.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
@@ -15,7 +12,7 @@ import org.springframework.util.Assert;
 
 //초 * 분 * 시 * 일
 @Getter
-@RedisHash(value = "refresh_tokens", timeToLive = 60 * 60 * 24 * 7)
+@RedisHash(value = "refresh_token_loginId")
 public class RefreshToken{
 
     @Id
@@ -33,6 +30,7 @@ public class RefreshToken{
     }
 
     @TimeToLive
+
     private Long expiration;
 }
 

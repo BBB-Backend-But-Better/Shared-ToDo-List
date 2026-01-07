@@ -9,7 +9,11 @@ public class NaverOAuth2UserInfo implements OAth2UserInfo {
     private final Map<String, Object> attributes; // Oauth2User에서 넘어온 전체 속성
 
     public NaverOAuth2UserInfo(Map<String, Object> attributes) {
-        this.attributes = (Map<String, Object>) attributes.get("response"); //미리 꺼내와서 변환
+        if (attributes.containsKey("response")) {
+            this.attributes = (Map<String, Object>) attributes.get("response");
+        } else {
+            this.attributes = attributes;
+        } //미리 꺼내와서 변환
     }
 
     @Override
@@ -21,7 +25,6 @@ public class NaverOAuth2UserInfo implements OAth2UserInfo {
     public String getProvider() {
         return "naver";
     }
-
 
     @Override
     public String getName() {
