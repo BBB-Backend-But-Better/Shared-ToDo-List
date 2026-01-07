@@ -37,10 +37,22 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         //소셜에서 사용자 정보 가져오긴
         OAuth2User oAuth2User = super.loadUser(userRequest);
-        log.info("OAuth2User attributes: {}", oAuth2User.getAttributes());
+
+        // 2. attributes 맵 가져오기 (수정 가능한 변수로 선언)
+        Map<String, Object> attributes = oAuth2User.getAttributes();
+        log.info("OAuth2User attributes: {}", attributes);
 
         //어떤 서비스인지  확인
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
+
+        //네이버일 경우 'response' 키 안의 내용으로 attributes를 교체(Flattening)
+        //이걸 안 하면 시큐리티가 ID를 못 찾아서 에러가 납니다.
+        if ("naver".equals(registrationId)) {
+            Map<String, Object> response = (Map<String, Object>) attributes.get("response");
+            if (response != null) {
+                attributes = response; // 껍질 벗기기!
+            }
+        }
 
         //규격에 맞는 UserInfo 생성 (팩토리 메서드 패턴)
         OAth2UserInfo userInfo = getOAuth2UserInfo(registrationId, oAuth2User.getAttributes());
@@ -69,10 +81,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private User saveOrUpdate(OAth2UserInfo userInfo) {
         //provider + providerId 조합으로 loginId 생성
         String generatedLoginId = userInfo.getProvider() + "_" + userInfo.getProviderId();
-
         //db 조회
         User user = usersRepository.findByLoginId(generatedLoginId).orElse(null);
-
 
         if (user == null) {
             // 유저 코드 난수 생성(10자리)
@@ -88,12 +98,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     .provider(ProviderType.valueOf(userInfo.getProvider().toUpperCase()))
                     .status(UsersStatus.CREATED)
                     .build();
-
             //저장
             usersRepository.save(user);
-
         }
-
         return user;
     }
 

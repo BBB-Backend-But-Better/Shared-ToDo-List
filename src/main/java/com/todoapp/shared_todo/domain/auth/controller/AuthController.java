@@ -13,118 +13,118 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-@Tag(name = "Auth API", description = "인증/인가 관련 API (회원가입, 로그인, 토큰 재발급)")
+@Tag(name = "Auth API", description = "인증/인가 관련 API (로컬/소셜 공통)")
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
+
     private final AuthService authService;
+    @Value("${jwt.refresh-token-expiration}")
+    private Long refreshTokenValidityInSeconds;
+    // ==========================================
+    // [Track 1] 로컬 로그인 전용 엔드포인트
+    // ==========================================
 
-    //회원가입
-    @Operation(summary = "회원가입", description = "신규 유저 회원가입을 처리합니다.")
+    @Operation(summary = "회원가입 (로컬)", description = "일반 아이디/비밀번호로 회원가입을 진행합니다.")
     @PostMapping("/signup")
-    public ApiResponse<String> signup (@RequestBody @Valid SignupRequest request,HttpServletResponse httpServletResponse) {
+    public ApiResponse<String> signup(@RequestBody @Valid SignupRequest request) {
         authService.signup(request);
-
         return ApiResponse.onSuccess("회원가입 성공");
     }
 
-    //로그인(httpolny 쿠키 발급)
-    @Operation(summary = "로그인", description = "로그인 성공 시 Access Token을 Body로, Refresh Token을 HttpOnly Cookie로 발급합니다.")
+    @Operation(summary = "로그인 (로컬)", description = "일반 로그인 성공 시 Access Token(Body)과 Refresh Token(Cookie)을 발급합니다.")
     @PostMapping("/login")
-    public ApiResponse<AccessTokenResponse> login (@RequestBody @Valid LoginRequest request, HttpServletResponse response) {
+    public ApiResponse<AccessTokenResponse> login(@RequestBody @Valid LoginRequest request, HttpServletResponse response) {
 
-        //서비스로 부터 토큰 2개 받아오기
+        // 1. 서비스 로직 (ID/PW 검증 및 토큰 생성)
         TokenDto tokenDto = authService.login(request);
-        
-        //리플래시 토큰 쿠기 생성
-        ResponseCookie refreshCookie = createRefreshCookie(tokenDto.refreshToken());
 
-        //해더에 쿠기 심기
-        response.setHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+        // 2. Refresh Token 쿠키 설정 (7일)
+        setRefreshTokenCookie(response, tokenDto.refreshToken(), refreshTokenValidityInSeconds);
 
-        //공통 응답 객체로 감싸서 반환
         return ApiResponse.onSuccess(new AccessTokenResponse(tokenDto.accessToken()));
-
     }
 
+    @Operation(summary = "아이디 중복 체크", description = "회원가입 전 아이디 사용 가능 여부를 확인합니다.")
+    @GetMapping("/check-id")
+    public ResponseEntity<AvailableResponse> checkLoginId(@ModelAttribute @Valid CheckLoginidRequest request) {
+        AvailableResponse response = authService.checkLoginIdDuplicate(request);
+        return ResponseEntity.ok().body(response);
+    }
 
-    //로그아웃
-    @Operation(summary = "로그아웃", description = "Refresh Token 쿠키를 삭제하고 서버(Redis 등)에서 토큰을 무효화합니다.")
+    // ==========================================
+    // [Track 2] 로컬/소셜 공통 엔드포인트
+    // ==========================================
+
+    @Operation(summary = "로그아웃", description = "Refresh Token 쿠키를 삭제하고, Access Token을 블랙리스트에 등록합니다.")
     @PostMapping("/logout")
-    public ApiResponse<String> logout(@RequestHeader("Authorization") String accessToken, @CookieValue("refresh_token") String refreshToken, HttpServletResponse response) {
+    public ApiResponse<String> logout(
+            @RequestHeader(value = "Authorization", required = false) String bearerToken,
+            @CookieValue(value = "refresh_token", required = false) String refreshToken,
+            HttpServletResponse response) {
 
-        //Bearer 제거
-        String resolveToken = resolveToken(accessToken);
+        // 1. 토큰이 없는 경우 (이미 로그아웃됨)
+        if (bearerToken == null || refreshToken == null) {
+            return ApiResponse.onSuccess("로그아웃 성공 (토큰 없음)");
+        }
 
-        //서비스 로그아웃
-        authService.logout(resolveToken,refreshToken);
+        // 2. Bearer 제거 및 로그아웃 처리
+        String accessToken = resolveToken(bearerToken);
+        authService.logout(accessToken, refreshToken);
 
-        //쿠키 삭제용
-        ResponseCookie endCookie = ResponseCookie.from("refresh_token", "")
-                .path("/") //모든 경로 접근 가능
-                .sameSite("Strict") //csrf 공격 방지
-                .httpOnly(true) //자바 스크립트 접근 차단
-                .secure(false) //https에서만 전송, 로컬일때는 false
-                .maxAge(0) //즉시 삭제
-                .build();
-
-        //해더에 쿠기 심기
-        response.setHeader(HttpHeaders.SET_COOKIE, endCookie.toString());
+        // 3. 쿠키 삭제 (MaxAge = 0)
+        setRefreshTokenCookie(response, "", 0);
 
         return ApiResponse.onSuccess("로그아웃 성공");
     }
 
-    //토큰 재발급
-    @Operation(summary = "토큰 재발급", description = "Refresh Token 쿠키를 사용하여 새로운 Access Token과 Refresh Token을 발급받습니다.")
+    @Operation(summary = "토큰 재발급", description = "만료된 Access Token을 Refresh Token(Cookie)을 이용해 재발급받습니다.")
     @PostMapping("/reissue")
-    public ApiResponse<AccessTokenResponse> reissue(@CookieValue("refresh_token") String refreshToken, HttpServletResponse response) {
+    public ApiResponse<AccessTokenResponse> reissue(
+            @CookieValue(value = "refresh_token", required = false) String refreshToken,
+            HttpServletResponse response) {
 
+        if (refreshToken == null) {
+            // GlobalExceptionHandler에서 처리하거나 명시적 에러 반환
+            throw new IllegalArgumentException("Refresh Token 쿠키가 없습니다.");
+        }
+
+        // 1. 토큰 재발급 (RTR 방식: Refresh Token도 갱신됨)
         TokenDto tokenDto = authService.reissue(refreshToken);
 
-        ResponseCookie refreshCookie = createRefreshCookie(tokenDto.refreshToken());
+        // 2. 갱신된 Refresh Token 쿠키 다시 굽기
+        setRefreshTokenCookie(response, tokenDto.refreshToken(), refreshTokenValidityInSeconds);
 
-        //해더에 쿠기 심기
-        response.setHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
-
-        //공통 응답 객체로 감싸서 반환
         return ApiResponse.onSuccess(new AccessTokenResponse(tokenDto.accessToken()));
-
     }
 
-    //아이디 중복 체크
-    @Operation(summary = "아이디 중복 체크", description = "회원가입 전 로그인 아이디 사용 가능 여부를 확인합니다.")
-    @GetMapping("/check-id")
-    public ResponseEntity<AvailableResponse> checkLoginid(@ModelAttribute @Valid CheckLoginidRequest request) {
-        AvailableResponse response = authService.checkLoginIdDuplicate(request);
-        return  ResponseEntity.ok()
-                .body(response);
-    }
+    // ==========================================
+    // [Private Methods] 유틸리티
+    // ==========================================
 
-
-    private static ResponseCookie createRefreshCookie(String tokenDto) {
-        //리플래시 토큰 httponly쿠키로
-        ResponseCookie refreshCookie = ResponseCookie.from("refresh_token", tokenDto)
-                .path("/") //모든 경로 접근 가능
-                .sameSite("Strict") //csrf 공격 방지
-                .httpOnly(true) //자바 스크립트 접근 차단
-                .secure(false) //https에서만 전송, 로컬일때는 false
-                .maxAge(7 * 24 * 60 * 60)
+    private void setRefreshTokenCookie(HttpServletResponse response, String token, long maxAgeSeconds) {
+        ResponseCookie cookie = ResponseCookie.from("refresh_token", token)
+                .path("/")
+                .sameSite("Strict")
+                .httpOnly(true)
+                .secure(false) // ★ 배포 시 true로 변경 (SSL 적용 시)
+                .maxAge(maxAgeSeconds)
                 .build();
-        return refreshCookie;
+
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
 
-    // Bearer 파싱 메서드
     private String resolveToken(String header) {
         if (header != null && header.startsWith("Bearer ")) {
             return header.substring(7);
         }
-        return null; // 혹은 예외 발생
+        return header; // Bearer가 없으면 그대로 반환해서 검증 실패 유도
     }
 }

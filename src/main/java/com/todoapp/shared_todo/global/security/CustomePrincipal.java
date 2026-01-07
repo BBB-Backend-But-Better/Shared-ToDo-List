@@ -57,7 +57,7 @@ public class CustomePrincipal implements UserDetails, OAuth2User {
 
     @Override
     public String getUsername() {
-        return "";
+        return loginId;
     }
 
     @Override
