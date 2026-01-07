@@ -1,3 +1,4 @@
+/*
 
 package com.todoapp.shared_todo.global.security;
 
@@ -15,27 +16,27 @@ import java.util.Date;
 
 @Slf4j
 @Component
-public class JwtProvider {
+public class OldJwtProvider {
 
-    private final SecretKey accSecretKey;
-    private final SecretKey refSecretKey;
+    private final SecretKey secretKey;
     private final long accessTokenExpirationTime;
     private final long refreshTokenExpirationTime;
 
-    // 액서스 와 리프레쉬 시크릿 키값 다르게
     public JwtProvider(
-            @Value("${jwt.accsecret}") String accSecretKey,
-            @Value("${jwt.refsecret}") String refSecretKey,
+            @Value("${jwt.secret}") String secret,
             @Value("${jwt.access-token-expiration}") long accessTokenExpirationTime,
             @Value("${jwt.refresh-token-expiration}") long refreshTokenExpirationTime
     ) {
-        byte[] accKeyBytes = Decoders.BASE64.decode(accSecretKey);
-        byte[] refKeyBytes = Decoders.BASE64.decode(refSecretKey);
-        this.accSecretKey = Keys.hmacShaKeyFor(accKeyBytes);
-        this.refSecretKey = Keys.hmacShaKeyFor(refKeyBytes);
+        byte[] keyBytes = Decoders.BASE64.decode(secret);
+        this.secretKey = Keys.hmacShaKeyFor(keyBytes);
         this.accessTokenExpirationTime = accessTokenExpirationTime;
         this.refreshTokenExpirationTime = refreshTokenExpirationTime;
     }
+
+     */
+/**  토큰 생성
+     * 페이로드: loginid, nickname, provider
+     *//*
 
 
     public String createAccessToken(Long userId,String loginId, String nickname, ProviderType provider, String userCode)  {
@@ -53,38 +54,25 @@ public class JwtProvider {
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + accessTokenExpirationTime))
 
-                .signWith(accSecretKey, SignatureAlgorithm.HS256)
+                .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public String createRefreshToken(Long userId, String loginId, String userCode) {
+    public String createRefreshToken(Long userId) {
         return Jwts.builder()
                 //표준 Claim, 토큰의 주인 식별자
                 .setSubject(String.valueOf(userId))
-
-                // custom claim
-                .claim("loginId", loginId)
-                .claim("userCode", userCode)
 
                 //시간 claim
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + refreshTokenExpirationTime))
 
-                .signWith(refSecretKey, SignatureAlgorithm.HS256)
+                .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
 
     }
-    // 1. Access Token 검증용 (accSecretKey 사용)
-    public boolean validateAccessToken(String token) {
-        return validateToken(token, accSecretKey);
-    }
 
-    // 2. Refresh Token 검증용 (refSecretKey 사용)
-    public boolean validateRefreshToken(String token) {
-        return validateToken(token, refSecretKey);
-    }
-
-    public boolean validateToken(String token, SecretKey secretKey) {
+    public boolean vaildateToken(String token) {
         try {
             Jwts.
                     parserBuilder().
@@ -107,32 +95,14 @@ public class JwtProvider {
         return false; // 예외 발생 시 무조건 false 반환
     }
 
-    
-    //가져오는것도 두개로 만드러야됨
     public Claims getClaims(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(accSecretKey)
+                .setSigningKey(secretKey)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
     }
 
-    //액서스 토큰 블랙리스트 만들기
-    public Long getExpiredToken(String token) {
-        try {
-            Date expiration = Jwts.parserBuilder()
-                    .setSigningKey(accSecretKey) // <--- ✅ 여기도 키 설정 추가 필요
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody()
-                    .getExpiration();
-            long now = new Date().getTime();
-            return (expiration.getTime() - now);
-        } catch (ExpiredJwtException e) {
-            // 이미 만료된 토큰이면 남은 시간은 0 또는 음수
-            return -1L;
-        }
-    }
-
 }
 
+*/
