@@ -16,7 +16,7 @@ public class User extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 30, nullable = false, unique = true) //UK
+    @Column(length = 255, nullable = false, unique = true) //UK
     private String loginId; //로컬로그인 아이디, 소셜 로그인 할떄에는 provider + _ + providerId (예: google_1029384812)으로 저장할꺼임.
 
     @Column(length = 100)
