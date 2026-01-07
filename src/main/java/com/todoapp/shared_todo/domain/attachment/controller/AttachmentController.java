@@ -2,7 +2,7 @@ package com.todoapp.shared_todo.domain.attachment.controller;
 
 import com.todoapp.shared_todo.domain.attachment.dto.*;
 import com.todoapp.shared_todo.domain.attachment.service.AttachmentService;
-import com.todoapp.shared_todo.global.security.CustomUserDetails;
+import com.todoapp.shared_todo.global.security.CustomePrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,7 +33,7 @@ public class AttachmentController {
     @PostMapping
     public ResponseEntity<AttachmentResponse> uploadFile(
             @Parameter(description = "보드 ID", example = "1") @PathVariable Long boardId,
-            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomePrincipal userDetails,
             @RequestParam("file") MultipartFile file) throws IOException {
 
         AttachmentResponse response = attachmentService.uploadFile(boardId, userDetails.getUserId(), file);
@@ -48,7 +48,7 @@ public class AttachmentController {
     @GetMapping
     public ResponseEntity<AttachmentListResponse> getAttachments(
             @Parameter(description = "보드 ID", example = "1") @PathVariable Long boardId,
-            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails) {
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomePrincipal userDetails) {
 
         AttachmentListResponse response = attachmentService.getAttachments(boardId, userDetails.getUserId());
         return ResponseEntity.ok(response);
@@ -63,7 +63,7 @@ public class AttachmentController {
     public ResponseEntity<AttachmentResponse> getAttachment(
             @Parameter(description = "보드 ID", example = "1") @PathVariable Long boardId,
             @Parameter(description = "첨부파일 ID", example = "1") @PathVariable Long attachmentId,
-            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails) {
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomePrincipal userDetails) {
 
         AttachmentResponse response = attachmentService.getAttachment(boardId, attachmentId, userDetails.getUserId());
         return ResponseEntity.ok(response);
@@ -78,7 +78,7 @@ public class AttachmentController {
     public ResponseEntity<PresignedUrlResponse> generatePresignedDownloadUrl(
             @Parameter(description = "보드 ID", example = "1") @PathVariable Long boardId,
             @Parameter(description = "첨부파일 ID", example = "1") @PathVariable Long attachmentId,
-            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails) {
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomePrincipal userDetails) {
 
         PresignedUrlResponse response = attachmentService.generatePresignedDownloadUrl(
                 boardId, attachmentId, userDetails.getUserId());
@@ -95,7 +95,7 @@ public class AttachmentController {
     public ResponseEntity<AttachmentShareResponse> createAwsShareLink(
             @Parameter(description = "보드 ID", example = "1") @PathVariable Long boardId,
             @Parameter(description = "첨부파일 ID", example = "1") @PathVariable Long attachmentId,
-            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails) {
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomePrincipal userDetails) {
 
         AttachmentShareResponse response = attachmentService.createAwsShareLink(
                 boardId, attachmentId, userDetails.getUserId());
@@ -111,7 +111,7 @@ public class AttachmentController {
     public ResponseEntity<Void> deleteAttachment(
             @Parameter(description = "보드 ID", example = "1") @PathVariable Long boardId,
             @Parameter(description = "첨부파일 ID", example = "1") @PathVariable Long attachmentId,
-            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails) {
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomePrincipal userDetails) {
 
         attachmentService.deleteAttachment(boardId, attachmentId, userDetails.getUserId());
         return ResponseEntity.noContent().build();
