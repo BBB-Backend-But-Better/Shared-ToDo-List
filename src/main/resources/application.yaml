@@ -3,6 +3,7 @@ spring:
     redis:
       host: localhost
       port: 6379
+      
   security:
     oauth2:
       client:
@@ -94,3 +95,17 @@ server:
       enabled: true
       force: true
 
+# AWS S3 설정
+aws:
+  s3:
+    bucket: ${AWS_S3_BUCKET:your-bucket-name}
+    region: ${AWS_S3_REGION:ap-northeast-2}
+    access-key: ${AWS_ACCESS_KEY:}
+    secret-key: ${AWS_SECRET_KEY:}
+    presigned-url-expiration: 3600  # Presigned URL 만료 시간 (초 단위, 기본 1시간)
+
+# 공유 링크 설정
+share:
+  link:
+    base-url: ${SHARE_LINK_BASE_URL:http://localhost:8080/api/public/attachments}
+    max-ttl-minutes: 10080  # 최대 TTL (7일, 분 단위)
