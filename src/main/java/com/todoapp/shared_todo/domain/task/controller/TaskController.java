@@ -5,7 +5,7 @@ import com.todoapp.shared_todo.domain.task.dto.TaskResponse;
 import com.todoapp.shared_todo.domain.task.dto.TaskUpdateRequest;
 import com.todoapp.shared_todo.domain.task.dto.TaskUpdateStatusRequest;
 import com.todoapp.shared_todo.domain.task.service.TaskService;
-import com.todoapp.shared_todo.global.security.CustomUserDetails;
+import com.todoapp.shared_todo.global.security.CustomePrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -35,7 +35,7 @@ public class TaskController {
     @PostMapping
     public ResponseEntity<TaskResponse> createTask(
             @Parameter(description = "보드 ID", example = "1") @PathVariable Long boardId,
-            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomePrincipal userDetails,
             @Valid @RequestBody TaskCreateRequest request) {
 
         TaskResponse response = taskService.createTask(boardId, userDetails.getUserId(), request);
@@ -50,7 +50,7 @@ public class TaskController {
     @GetMapping
     public ResponseEntity<List<TaskResponse>> getTasks(
             @Parameter(description = "보드 ID", example = "1") @PathVariable Long boardId,
-            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails) {
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomePrincipal userDetails) {
 
         List<TaskResponse> responses = taskService.getTasks(boardId, userDetails.getUserId());
         return ResponseEntity.ok(responses);
@@ -65,7 +65,7 @@ public class TaskController {
     public ResponseEntity<TaskResponse> getTask(
             @Parameter(description = "보드 ID", example = "1") @PathVariable Long boardId,
             @Parameter(description = "할 일 ID", example = "10") @PathVariable Long taskId,
-            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails) {
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomePrincipal userDetails) {
 
         TaskResponse response = taskService.getTask(boardId, taskId, userDetails.getUserId());
         return ResponseEntity.ok(response);
@@ -76,7 +76,7 @@ public class TaskController {
     public ResponseEntity<TaskResponse> updateTask(
             @Parameter(description = "보드 ID", example = "1") @PathVariable Long boardId,
             @Parameter(description = "할 일 ID", example = "10") @PathVariable Long taskId,
-            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomePrincipal userDetails,
             @Valid @RequestBody TaskUpdateRequest request) {
 
         TaskResponse response = taskService.updateTask(boardId, taskId, userDetails.getUserId(), request);
@@ -91,7 +91,7 @@ public class TaskController {
     public ResponseEntity<TaskResponse> toggleTaskStatus(
             @Parameter(description = "보드 ID", example = "1") @PathVariable Long boardId,
             @Parameter(description = "할 일 ID", example = "10") @PathVariable Long taskId,
-            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails) {
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomePrincipal userDetails) {
 
         TaskResponse response = taskService.toggleTaskStatus(boardId, taskId, userDetails.getUserId());
         return ResponseEntity.ok(response);
@@ -105,7 +105,7 @@ public class TaskController {
     public ResponseEntity<TaskResponse> updateTaskStatus(
             @Parameter(description = "보드 ID", example = "1") @PathVariable Long boardId,
             @Parameter(description = "할 일 ID", example = "10") @PathVariable Long taskId,
-            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomePrincipal userDetails,
             @Valid @RequestBody TaskUpdateStatusRequest request) {
 
         TaskResponse response = taskService.updateTaskStatus(boardId, taskId, userDetails.getUserId(), request);
@@ -120,7 +120,7 @@ public class TaskController {
     public ResponseEntity<Void> deleteTask(
             @Parameter(description = "보드 ID", example = "1") @PathVariable Long boardId,
             @Parameter(description = "할 일 ID", example = "10") @PathVariable Long taskId,
-            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails) {
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomePrincipal userDetails) {
 
         taskService.deleteTask(boardId, taskId, userDetails.getUserId());
         return ResponseEntity.noContent().build();

@@ -202,6 +202,9 @@ $RECYCLE.BIN/
 *.msm
 *.msp
 
+#민감한 환경변수
+src/main/resources/.env
+
 # Windows shortcuts
 *.lnk
 
