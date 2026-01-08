@@ -109,9 +109,17 @@ public class JwtProvider {
 
     
     //가져오는것도 두개로 만드러야됨
-    public Claims getClaims(String token) {
+    public Claims getACCClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(accSecretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    public Claims getREFClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(refSecretKey)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();

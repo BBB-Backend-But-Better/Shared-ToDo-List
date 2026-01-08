@@ -23,6 +23,7 @@ public enum ErrorCode {
     DUPLICATE_NICKNAME(HttpStatus.CONFLICT, "AUTH_002","이미 사용 중인 닉네임입니다."),
     INVALID_PASSWORD_FORMAT(HttpStatus.BAD_REQUEST, "AUTH_003","비밀번호 형식이 올바르지 않습니다."),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "AUTH_004","존재하지 않는 회원입니다."),
+    LOGIN_REQUIRED(HttpStatus.UNAUTHORIZED,"AUTH_005","이미 로그아웃된 사용자입니다. 다시 로그인해주세요."),
 
     LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "AUTH_005","아이디 또는 비밀번호를 확인해주세요."),
     /* --- 토큰 (Token/JWT) [cite: 66] --- */

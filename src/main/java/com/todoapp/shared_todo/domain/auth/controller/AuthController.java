@@ -88,7 +88,7 @@ public class AuthController {
     @Operation(summary = "토큰 재발급", description = "만료된 Access Token을 Refresh Token(Cookie)을 이용해 재발급받습니다.")
     @PostMapping("/reissue")
     public ApiResponse<AccessTokenResponse> reissue(
-            @CookieValue(value = "refresh_token", required = false) String refreshToken,
+            @CookieValue(value = "refreshToken", required = false) String refreshToken,
             HttpServletResponse response) {
 
         if (refreshToken == null) {
