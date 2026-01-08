@@ -41,10 +41,11 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
-            //세션 설정, stateless로 설정
+                //세션 설정, stateless로 설정
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
+
 
                 //URL별 권환 관리(회원가입, 로그인 외에 접속 불가)
                 .authorizeHttpRequests(auth -> auth
@@ -62,6 +63,7 @@ public class SecurityConfig {
                 
                 //필터 등록 JWT 검사기 장착, 생성자 두개 추가
                 .addFilterBefore(new JwtAuthenticationFilter(jwtProvider,redisTemplate), UsernamePasswordAuthenticationFilter.class);
+
         
         return http.build();
     }

@@ -49,7 +49,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
             //정상이면 토큰에서 Claims 추출
-            Claims claims = jwtProvider.getClaims(token);
+            Claims claims = jwtProvider.getACCClaims(token);
             Long userId = Long.valueOf(claims.getSubject()); //로그인 정보 꺼내고
             String userCode = claims.get("userCode", String.class); //유저 코드 꺼내서 사용!
             String loginId = claims.get("loginId", String.class); //유저 코드 꺼내서 사용!

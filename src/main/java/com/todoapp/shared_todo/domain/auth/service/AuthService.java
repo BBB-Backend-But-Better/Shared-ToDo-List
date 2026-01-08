@@ -79,13 +79,13 @@ public class AuthService {
         //1. 액서스 토큰 남은 유효시간 계산, 블랙리스트 등록
         Long expiredToken = jwtProvider.getExpiredToken(accessToken);
         if(expiredToken > 0){
-            redisTemplate.opsForValue().set("blacklist:"+ accessToken, "logout:", expiredToken, TimeUnit.MICROSECONDS);
+            redisTemplate.opsForValue().set("blacklist:"+ accessToken, "logout:", expiredToken, TimeUnit.MILLISECONDS);
         }
         
         //리플래시 토큰 처리 하는데, 거기서 id를 뽑아서 삭제
         if(jwtProvider.validateRefreshToken(refreshToken)){
 
-            String userLoginId = jwtProvider.getClaims(refreshToken).get("loginId", String.class);
+            String userLoginId = jwtProvider.getREFClaims(refreshToken).get("loginId", String.class);
             refreshTokenRepository.deleteById(userLoginId);
         }else{
             throw new GeneralException(ErrorCode.INVALID_REFRESH_TOKEN);
@@ -113,7 +113,7 @@ public class AuthService {
             throw new GeneralException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
 
-        String loginId = jwtProvider.getClaims(requestRefreshToken).get("loginId", String.class);
+        String loginId = jwtProvider.getREFClaims(requestRefreshToken).get("loginId", String.class);
 
         //Redis에서 토큰 조회(존재하는지)
         RefreshToken redisToken = refreshTokenRepository.findById(loginId)

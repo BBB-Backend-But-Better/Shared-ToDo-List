@@ -1,5 +1,6 @@
 package com.todoapp.shared_todo.domain.attachment.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class AttachmentResponse {
 
+    @Schema(description = "파일 업로드",example = "과일사진")
     private Long id;
     private String originFilename;
     private Long fileSize;

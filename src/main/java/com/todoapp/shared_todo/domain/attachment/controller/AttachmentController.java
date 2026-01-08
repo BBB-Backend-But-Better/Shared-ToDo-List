@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +31,7 @@ public class AttachmentController {
      * POST /boards/{boardId}/attachments
      */
     @Operation(summary = "파일 업로드", description = "보드에 파일을 업로드합니다.")
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AttachmentResponse> uploadFile(
             @Parameter(description = "보드 ID", example = "1") @PathVariable Long boardId,
             @Parameter(hidden = true) @AuthenticationPrincipal CustomePrincipal userDetails,
