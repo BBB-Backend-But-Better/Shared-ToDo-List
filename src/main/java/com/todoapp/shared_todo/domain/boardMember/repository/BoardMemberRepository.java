@@ -3,6 +3,8 @@ package com.todoapp.shared_todo.domain.boardMember.repository;
 import com.todoapp.shared_todo.domain.boardMember.entity.BoardMember;
 import com.todoapp.shared_todo.domain.boardMember.entity.BoardMemberRole;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -10,6 +12,9 @@ import java.util.Optional;
 
 @Repository
 public interface BoardMemberRepository extends JpaRepository<BoardMember, Long> {
+
+    @Query("SELECT bm FROM BoardMember bm JOIN FETCH bm.board WHERE bm.user.id = :userId")
+    List<BoardMember> findAllByUserId(@Param("userId") Long userId);
 
     /**
      * 특정 보드에 속한 모든 멤버 조회

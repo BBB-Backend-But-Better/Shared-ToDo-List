@@ -26,11 +26,11 @@ public class BoardMemberService {
     public List<BoardMemberResponse> getBoardMembers(Long boardId, Long userId, BoardMemberRole role) {
         // 보드 존재 확인
         boardRepository.findById(boardId)
-                .orElseThrow(() -> new IllegalArgumentException("보드를 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("보드맴버를 찾을 수 없습니다."));
 
         // 요청한 사용자가 보드 멤버인지 확인
         boardMemberRepository.findByBoardIdAndUserId(boardId, userId)
-                .orElseThrow(() -> new IllegalArgumentException("보드에 접근할 권한이 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("보드맴버에 접근할 권한이 없습니다."));
 
         // 역할 필터링이 있는 경우 해당 역할의 멤버만 조회, 없으면 전체 조회
         List<BoardMember> members;
@@ -56,11 +56,11 @@ public class BoardMemberService {
     public void deleteBoardMember(Long boardId, Long ownerId, Long memberUserId) {
         // 보드 존재 확인
         boardRepository.findById(boardId)
-                .orElseThrow(() -> new IllegalArgumentException("보드를 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("보드맴버를 찾을 수 없습니다."));
 
         // 요청자가 OWNER인지 확인
         BoardMember ownerMember = boardMemberRepository.findByBoardIdAndUserId(boardId, ownerId)
-                .orElseThrow(() -> new IllegalArgumentException("보드에 접근할 권한이 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("보드맴버에 접근할 권한이 없습니다."));
 
         if (ownerMember.getRole() != BoardMemberRole.OWNER) {
             throw new IllegalArgumentException("보드 멤버를 삭제할 권한이 없습니다. OWNER만 가능합니다.");
@@ -87,7 +87,7 @@ public class BoardMemberService {
     public void leaveBoard(Long boardId, Long userId) {
         // 보드 존재 확인
         boardRepository.findById(boardId)
-                .orElseThrow(() -> new IllegalArgumentException("보드를 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("보드맴버를 찾을 수 없습니다."));
 
         // 사용자가 보드 멤버인지 확인
         BoardMember member = boardMemberRepository.findByBoardIdAndUserId(boardId, userId)

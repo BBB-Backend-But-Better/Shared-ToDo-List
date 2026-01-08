@@ -5,25 +5,16 @@ import com.todoapp.shared_todo.domain.user.entity.User;
 import com.todoapp.shared_todo.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 @Getter
-@Setter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Board extends BaseTimeEntity {
-
-    // 정적 팩토리 메서드
-    public static Board create(String title, User author) {
-        Board board = new Board();
-        board.setTitle(title);
-        board.setAuthor(author);
-        board.setCompletionRate(0.0f);
-        return board;
-    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,8 +43,20 @@ public class Board extends BaseTimeEntity {
         return Objects.equals(id, board.id);
     }
 
+    @Builder
+    public Board(String title, User author, Float completionRate) {
+        this.title = title;
+        this.author = author;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    //타이틀 업데이트
+    public void updateTitle(String title) {
+        Assert.hasText(title, "닉네임은 필수입니다.");
+        this.title = title;
     }
 }

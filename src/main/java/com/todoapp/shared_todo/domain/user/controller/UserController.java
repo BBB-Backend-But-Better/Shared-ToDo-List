@@ -1,5 +1,6 @@
 package com.todoapp.shared_todo.domain.user.controller;
 
+import com.todoapp.shared_todo.domain.auth.service.AuthService;
 import com.todoapp.shared_todo.domain.user.dto.request.ChangeNicknameRequest;
 import com.todoapp.shared_todo.domain.user.dto.request.ChangePasswordRequest;
 import com.todoapp.shared_todo.domain.user.dto.request.PasswordCheckRequest;
@@ -10,8 +11,11 @@ import com.todoapp.shared_todo.global.exception.ErrorCode;
 import com.todoapp.shared_todo.global.security.CustomePrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/myinfo")
 public class UserController {
 
+    private final AuthService authService;
     private final UserService userService;
 
 //내정보 조회
@@ -66,9 +71,44 @@ public class UserController {
     //회원탈퇴
     @Operation(summary = "회원 탈퇴", description = "서비스에서 탈퇴하고 계정을 삭제합니다. (복구 불가)")
     @PostMapping("/me/withdraw")
-    public ApiResponse<Void> withdraw(@AuthenticationPrincipal CustomePrincipal userId){
-        userService.withdraw(userId.getUsername());
+    public ApiResponse<String> withdraw(
+            @RequestHeader(value = "Authorization", required = false) String bearerToken,
+            @CookieValue(value = "refresh_token", required = false) String refreshToken,
+            @AuthenticationPrincipal CustomePrincipal userId,
+            HttpServletResponse response){
+        // 1. 토큰이 없는 경우 (이미 로그아웃됨)
+        if (bearerToken == null || refreshToken == null) {
+            return ApiResponse.onSuccess("로그아웃 성공 (토큰 없음)");
+        }
+
+        // 2. Bearer 제거 및 로그아웃 처리
+        String accessToken = resolveToken(bearerToken);
+        authService.logout(accessToken, refreshToken);
+
+        // 3. 쿠키 삭제 (MaxAge = 0)
+        setRefreshTokenCookie(response, "", 0);
+        userService.withdraw(userId.getLoginId());
         return ApiResponse.onSuccess(null);
+    }
+
+
+    private void setRefreshTokenCookie(HttpServletResponse response, String token, long maxAgeSeconds) {
+        ResponseCookie cookie = ResponseCookie.from("refresh_token", token)
+                .path("/")
+                .sameSite("Strict")
+                .httpOnly(true)
+                .secure(false) // ★ 배포 시 true로 변경 (SSL 적용 시)
+                .maxAge(maxAgeSeconds)
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+    }
+
+    private String resolveToken(String header) {
+        if (header != null && header.startsWith("Bearer ")) {
+            return header.substring(7);
+        }
+        return header; // Bearer가 없으면 그대로 반환해서 검증 실패 유도
     }
 
 }

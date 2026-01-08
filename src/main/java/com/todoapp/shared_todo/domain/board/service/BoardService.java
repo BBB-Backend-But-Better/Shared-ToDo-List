@@ -4,6 +4,9 @@ import com.todoapp.shared_todo.domain.board.dto.BoardCreateRequest;
 import com.todoapp.shared_todo.domain.board.dto.BoardResponse;
 import com.todoapp.shared_todo.domain.board.entity.Board;
 import com.todoapp.shared_todo.domain.board.repository.BoardRepository;
+import com.todoapp.shared_todo.domain.boardMember.entity.BoardMember;
+import com.todoapp.shared_todo.domain.boardMember.entity.BoardMemberRole;
+import com.todoapp.shared_todo.domain.boardMember.repository.BoardMemberRepository;
 import com.todoapp.shared_todo.domain.user.entity.User;
 import com.todoapp.shared_todo.domain.user.repository.UsersRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +23,7 @@ public class BoardService {
 
     private final BoardRepository boardRepository;
     private final UsersRepository usersRepository;
+    private final BoardMemberRepository boardMemberRepository;
 
     /**
      * 보드 생성
@@ -27,11 +31,23 @@ public class BoardService {
      */
     @Transactional
     public BoardResponse createBoard(Long userId, BoardCreateRequest request) {
+        
+        //먼저 사용자 찾기
         User author = usersRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-        Board board = Board.create(request.getTitle(), author);
+        Board board = Board.builder()
+                .title(request.getTitle())
+                .author(author)
+                .build();
+
+        //먼저 보드 만들고
         Board savedBoard = boardRepository.save(board);
+
+        //보드 맴버 만들고 보드 맴버에도 저장
+        BoardMember ownerMember = BoardMember.create(board, author, BoardMemberRole.OWNER);
+        boardMemberRepository.save(ownerMember);
+
 
         return BoardResponse.builder()
                 .id(savedBoard.getId())
@@ -50,15 +66,18 @@ public class BoardService {
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
         // 소유한 보드 목록
-        List<Board> ownedBoards = boardRepository.findByAuthor(user);
+        List<BoardMember> myMemberships = boardMemberRepository.findAllByUserId(userId);
 
-        return ownedBoards.stream()
-                .map(board -> BoardResponse.builder()
-                        .id(board.getId())
-                        .title(board.getTitle())
-                        .authorId(board.getAuthor().getId())
-                        .completionRate(board.getCompletionRate())
-                        .build())
+        return myMemberships.stream()
+                .map(bm -> {
+                    Board board = bm.getBoard(); // 조인해와서 바로 꺼낼 수 있음
+                    return BoardResponse.builder()
+                            .id(board.getId())
+                            .title(board.getTitle())
+                            .authorId(board.getAuthor().getId())
+                            .completionRate(board.getCompletionRate())
+                            .build();
+                })
                 .collect(Collectors.toList());
     }
 
@@ -69,8 +88,9 @@ public class BoardService {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new IllegalArgumentException("보드를 찾을 수 없습니다."));
 
+        boolean exists = boardMemberRepository.existsByBoardIdAndUserId(boardId, userId);
         // 권한 확인: 소유자만 접근 가능
-        if (!board.getAuthor().getId().equals(userId)) {
+        if (!exists) {
             throw new IllegalArgumentException("보드에 접근할 권한이 없습니다.");
         }
 
@@ -92,11 +112,13 @@ public class BoardService {
                 .orElseThrow(() -> new IllegalArgumentException("보드를 찾을 수 없습니다."));
 
         // 권한 확인: 소유자만 수정 가능
-        if (!board.getAuthor().getId().equals(userId)) {
-            throw new IllegalArgumentException("보드를 수정할 권한이 없습니다.");
+        boolean exists = boardMemberRepository.existsByBoardIdAndUserId(boardId, userId);
+        // 권한 확인: 소유자만 접근 가능
+        if (!exists) {
+            throw new IllegalArgumentException("보드에 접근할 권한이 없습니다.");
         }
 
-        board.setTitle(newTitle);
+        board.updateTitle(newTitle);
         Board updatedBoard = boardRepository.save(board);
 
         return BoardResponse.builder()

@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class AttachmentResponse {
 
-    @Schema(description = "파일 업로드",example = "과일사진")
     private Long id;
     private String originFilename;
     private Long fileSize;

@@ -87,7 +87,7 @@ public class TaskController {
      * Task 상태 변경 (토글)
      */
     @Operation(summary = "Task 완료 여부 토글", description = "할 일의 완료 상태(UNCHECK, CHECK)를 반전시킵니다.")
-    @PatchMapping("/{taskId}/toggle")
+    @GetMapping("/{taskId}/toggle")
     public ResponseEntity<TaskResponse> toggleTaskStatus(
             @Parameter(description = "보드 ID", example = "1") @PathVariable Long boardId,
             @Parameter(description = "할 일 ID", example = "10") @PathVariable Long taskId,

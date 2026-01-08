@@ -2,6 +2,7 @@ package com.todoapp.shared_todo.domain.task.service;
 
 import com.todoapp.shared_todo.domain.board.entity.Board;
 import com.todoapp.shared_todo.domain.board.repository.BoardRepository;
+import com.todoapp.shared_todo.domain.boardMember.repository.BoardMemberRepository;
 import com.todoapp.shared_todo.domain.task.dto.TaskCreateRequest;
 import com.todoapp.shared_todo.domain.task.dto.TaskResponse;
 import com.todoapp.shared_todo.domain.task.dto.TaskUpdateRequest;
@@ -23,6 +24,7 @@ public class TaskService {
 
     private final TaskRepository taskRepository;
     private final BoardRepository boardRepository;
+    private final BoardMemberRepository boardMemberRepository;
 
     /**
      * Task 생성
@@ -53,7 +55,9 @@ public class TaskService {
                 .orElseThrow(() -> new IllegalArgumentException("보드를 찾을 수 없습니다."));
 
         // 권한 확인: 소유자만 접근 가능
-        if (!board.getAuthor().getId().equals(userId)) {
+        boolean exists = boardMemberRepository.existsByBoardIdAndUserId(boardId, userId);
+        // 권한 확인: 소유자만 접근 가능
+        if (!exists) {
             throw new IllegalArgumentException("보드에 접근할 권한이 없습니다.");
         }
 
