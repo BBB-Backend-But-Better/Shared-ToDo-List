@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
+@Table(name = "task")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Task extends BaseTimeEntity {
 

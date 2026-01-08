@@ -13,6 +13,7 @@ import java.util.Objects;
 
 @Getter
 @Entity
+@Table(name = "board")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Board extends BaseTimeEntity {
 
